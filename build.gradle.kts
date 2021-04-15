@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 
 plugins {
-    kotlin("jvm") version "1.4.20"
+    kotlin("jvm") version "1.3.50"
 }
 
 group = "me.evgen"
@@ -39,20 +39,4 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-val fatJar = task("fatJar", type = Jar::class) {
-    baseName = "${project.name}-fat"
-    // manifest Main-Class attribute is optional.
-    // (Used only to provide default main class for executable jar)
-    manifest {
-        attributes["Main-Class"] = "BotLogicKt"
-    }
-    from(configurations.compileClasspath.map { config -> config.map { if (it.isDirectory) it else zipTree(it) } })
-    with(tasks["jar"] as CopySpec)
-}
-
-tasks {
-    "build" {
-        dependsOn(fatJar)
-    }
-}
 
