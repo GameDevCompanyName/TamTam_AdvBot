@@ -17,7 +17,8 @@ create table advertisement
     description text,
     link        text,
     file_id     bigint references file (id),
-    user_id     bigint references users (id)
+    user_id     bigint references users (id),
+    enabled boolean
 );
 create index advertisement_user_id_idx on advertisement (user_id);
 
