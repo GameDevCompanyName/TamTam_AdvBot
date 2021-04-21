@@ -80,7 +80,7 @@ fun main() {
             }
 
             // when user click on button with payload "HELLO", code below will start
-            answerOnCallback("ADVERT") {
+            answerOnCallback(Payloads.ADVERT) {
                 val inlineKeyboard = createAdvertKeyboard()
                 "Размещение рекламы" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
@@ -89,7 +89,7 @@ fun main() {
             }
 
             // when user click on button with payload "GOODBYE", code below will start
-            answerOnCallback("PLATFORM") {
+            answerOnCallback(Payloads.PLATFORM) {
 
 //                // send message with upload Photo which replace old message
 //                "Предоставление площадки" prepareReplacementCurrentMessage
@@ -97,16 +97,16 @@ fun main() {
 //                        UploadParams("res/busy_dog.jpg", UploadType.PHOTO)
 
                 // send message which replace old message
-                "Предоставление площадки" answerFor it.callback.callbackId
+                "${it.message}" answerFor it.callback.callbackId
 
                 // send notification (as Toast) for User
-                "Я пока ничего не умею, но скоро обязательно научусь!" answerNotification AnswerParams(
+                "${it.callback.callbackId}" answerNotification AnswerParams(
                     it.callback.callbackId,
                     it.callback.user.userId
                 )
             }
 
-            answerOnCallback("CONSTRUCT") {
+            answerOnCallback(Payloads.CONSTRUCT) {
                 val inlineKeyboard = createConstructorKeyboard()
                 """Добро пожаловать в конструктор рекламы!
                 |Для навигации используйте кнопки:
@@ -114,13 +114,13 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
-            answerOnCallback("BACK_TO_START") {
+            answerOnCallback(Payloads.BACK_TO_START) {
                 val inlineKeyboard = createStartKeyboard()
                 "Выберите один из предложенных вариантов:" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
-            answerOnCallback("ADV_LIST") {
+            answerOnCallback(Payloads.ADV_LIST) {
                 val inlineKeyboard = keyboard {
                     for (i in 0..2) {
                         val n = i + 1
@@ -128,7 +128,7 @@ fun main() {
                             +Button(
                                 ButtonType.CALLBACK,
                                 "Реклама №$n",
-                                payload = "CONSTRUCT"
+                                payload = Payloads.CONSTRUCT
                             )
                         }
                     }
@@ -136,7 +136,7 @@ fun main() {
                         +Button(
                             ButtonType.CALLBACK,
                             "← Назад",
-                            payload = "BACK_TO_ADVERT"
+                            payload = Payloads.BACK_TO_ADVERT
                         )
                     }
                 }
@@ -144,25 +144,25 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
-            answerOnCallback("BACK_TO_ADVERT") {
+            answerOnCallback(Payloads.BACK_TO_ADVERT) {
                 val inlineKeyboard = createAdvertKeyboard()
                 "Размещение рекламы" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
-            answerOnCallback("ADV_NAME") {
+            answerOnCallback(Payloads.ADV_NAME) {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
-            answerOnCallback("ADV_TEXT") {
+            answerOnCallback(Payloads.ADV_TEXT) {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
-            answerOnCallback("ADV_IMG") {
+            answerOnCallback(Payloads.ADV_IMG) {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
-            answerOnCallback("ADV_TARGETS") {
+            answerOnCallback(Payloads.ADV_TARGETS) {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
