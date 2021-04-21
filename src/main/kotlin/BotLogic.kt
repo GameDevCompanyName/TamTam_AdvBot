@@ -11,6 +11,7 @@ import chat.tamtam.botsdk.model.request.UploadType
 import chat.tamtam.botsdk.scopes.CommandsScope
 import chat.tamtam.botsdk.state.CommandState
 import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
+import model.*
 
 fun main() {
 
@@ -18,14 +19,12 @@ fun main() {
 
         // when User start your bot, code below will start
         onStartBot {
-            """Привет! Я бот для работы с рекламой.
-                |Для начала работы введите команду /start
-            """.trimMargin() sendFor it.user.userId
+            initialText(it.user.name) sendFor it.user.userId
         }
 
         // when something added your bot to Chat, code below will start
         onAddBotToChat {
-
+            "Здарова бандиты" sendFor it.chatId
         }
 
         // when something removed your bot from Chat, code below will start
@@ -136,7 +135,7 @@ fun main() {
                     +buttonRow {
                         +Button(
                             ButtonType.CALLBACK,
-                            "<- Назад",
+                            "← Назад",
                             payload = "BACK_TO_ADVERT"
                         )
                     }
@@ -153,19 +152,19 @@ fun main() {
 
             answerOnCallback("ADV_NAME") {
 
-                "Plug in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
             answerOnCallback("ADV_TEXT") {
 
-                "Plug in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
             answerOnCallback("ADV_IMG") {
 
-                "Plug in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
             answerOnCallback("ADV_TARGETS") {
 
-                "Plug in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
 
         }
@@ -186,122 +185,27 @@ fun main() {
 
         }
 
-        users {
-
-            // if some user added in chat where your bot is member, code below will start
-            onAddedUserToChat {
-                """Привет, ${it.user.name}!
-                    |Не хочешь купить немного рекламы?
-                """.trimMargin() sendFor it.chatId
-            }
-
-            // if some user removed in chat where your bot is member, code below will start
-            onRemovedUserFromChat {
-
-            }
-
-        }
+//        users {
+//
+//            // if some user added in chat where your bot is member, code below will start
+//            onAddedUserToChat {
+//                """Привет, ${it.user.name}!
+//                    |Не хочешь купить немного рекламы?
+//                """.trimMargin() sendFor it.chatId
+//            }
+//
+//            // if some user removed in chat where your bot is member, code below will start
+//            onRemovedUserFromChat {
+//
+//            }
+//
+//        }
 
     }
 }
 
 private suspend fun CommandsScope.sendTextWithKeyboard(state: CommandState, keyboard: InlineKeyboard) {
     "Choose you dinner" prepareFor state.command.message.sender.userId sendWith keyboard
-}
-
-private fun createStartKeyboard(): InlineKeyboard {
-    return keyboard {
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Разместить рекламу",
-                payload = "ADVERT"
-            )
-            +Button(
-                ButtonType.CALLBACK,
-                "Предоставить площадку",
-                payload = "PLATFORM"
-            )
-        }
-
-//
-//
-//        add(buttonRow {
-//            add(
-//                Button(
-//                    ButtonType.LINK,
-//                    "Find new dreams",
-//                    url = "http://dreams.com/"
-//                )
-//            )
-//        })
-    }
-}
-
-private fun createAdvertKeyboard(): InlineKeyboard {
-    return keyboard {
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Мои объявления",
-                payload = "ADV_LIST"
-            )
-            +Button(
-                ButtonType.CALLBACK,
-                "Создать рекламу",
-                payload = "CONSTRUCT"
-            )
-        }
-
-        this add buttonRow {
-            this add Button(
-                ButtonType.CALLBACK,
-                "<- Назад",
-                payload = "BACK_TO_START"
-            )
-        }
-    }
-}
-
-private fun createConstructorKeyboard(): InlineKeyboard {
-    return keyboard {
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Настройка названия",
-                payload = "ADV_NAME"
-            )
-        }
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Настройка текста",
-                payload = "ADV_TEXT"
-            )
-        }
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Настройка изображения",
-                payload = "ADV_IMG"
-            )
-        }
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "Настройка каналов",
-                payload = "ADV_TARGETS"
-            )
-        }
-
-        this add buttonRow {
-            this add Button(
-                ButtonType.CALLBACK,
-                "<- Назад",
-                payload = "BACK_TO_ADVERT"
-            )
-        }
-    }
 }
 
 
