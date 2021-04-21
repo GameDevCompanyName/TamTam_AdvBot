@@ -4,6 +4,7 @@ import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import Payloads
 
 fun initialText(name: String): String {
     return """Привет, $name! Я бот для работы с рекламой.
@@ -17,12 +18,12 @@ fun createStartKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Разместить рекламу",
-                payload = "ADVERT"
+                payload = Payloads.ADVERT
             )
             +Button(
                 ButtonType.CALLBACK,
                 "Предоставить площадку",
-                payload = "PLATFORM"
+                payload = Payloads.PLATFORM
             )
         }
     }
@@ -34,20 +35,46 @@ fun createAdvertKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Мои объявления",
-                payload = "ADV_LIST"
+                payload = Payloads.ADV_LIST
             )
             +Button(
                 ButtonType.CALLBACK,
                 "Создать рекламу",
-                payload = "CONSTRUCT"
+                payload = Payloads.CONSTRUCT
             )
         }
 
         this add buttonRow {
             this add Button(
                 ButtonType.CALLBACK,
-                "← Назад",
-                payload = "BACK_TO_START"
+                "⬅ Назад",
+                payload = Payloads.BACK_TO_START
+            )
+        }
+    }
+}
+
+fun createAdvSettingsKeyboard(): InlineKeyboard {
+    return keyboard {
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "Настроить рекламу",
+                payload = Payloads.CONSTRUCT
+            )
+        }
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "Отключить рекламу",
+                payload = Payloads.ADV_NAME
+            )
+        }
+        this add buttonRow {
+            this add Button(
+                ButtonType.CALLBACK,
+                "⬅ Назад",
+                payload = Payloads.ADV_LIST
             )
         }
     }
@@ -59,36 +86,41 @@ fun createConstructorKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Настройка названия",
-                payload = "ADV_NAME"
+                payload = Payloads.ADV_NAME
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
                 "Настройка текста",
-                payload = "ADV_TEXT"
+                payload = Payloads.ADV_TEXT
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
                 "Настройка изображения",
-                payload = "ADV_IMG"
+                payload = Payloads.ADV_IMG
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
                 "Настройка каналов",
-                payload = "ADV_TARGETS"
+                payload = Payloads.ADV_TARGETS
             )
         }
 
-        this add buttonRow {
-            this add Button(
+        +buttonRow {
+            +Button(
                 ButtonType.CALLBACK,
-                "← Назад",
-                payload = "BACK_TO_ADVERT"
+                "❌ Отмена",
+                payload = Payloads.ADVERT
+            )
+            +Button(
+                ButtonType.CALLBACK,
+                "Готово ✅",
+                payload = Payloads.ADVERT
             )
         }
     }

@@ -128,20 +128,25 @@ fun main() {
                             +Button(
                                 ButtonType.CALLBACK,
                                 "Реклама №$n",
-                                payload = Payloads.CONSTRUCT
+                                payload = Payloads.ADV_SETTINGS
                             )
                         }
                     }
                     +buttonRow {
                         +Button(
                             ButtonType.CALLBACK,
-                            "← Назад",
-                            payload = Payloads.BACK_TO_ADVERT
+                            "⬅ Назад",
+                            payload = Payloads.ADVERT
                         )
                     }
                 }
                 "Ваши объявления:" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
+            }
+
+            answerOnCallback(Payloads.ADV_SETTINGS) {
+                "Работа с рекламой" prepareReplacementCurrentMessage
+                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith createAdvSettingsKeyboard()
             }
 
             answerOnCallback(Payloads.BACK_TO_ADVERT) {

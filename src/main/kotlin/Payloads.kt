@@ -9,5 +9,5 @@ object Payloads {
     const val ADV_IMG = "ADV_IMG"
     const val ADV_TARGETS = "ADV_TARGETS"
     const val BACK_TO_ADVERT = "BACK_TO_ADVERT"
-
+    const val ADV_SETTINGS = "ADV_SETTINGS"
 }
