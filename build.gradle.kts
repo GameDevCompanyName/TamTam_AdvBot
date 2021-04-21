@@ -3,6 +3,7 @@ import java.net.URI
 
 plugins {
     kotlin("jvm") version "1.3.50"
+    id("org.flywaydb.flyway") version "7.8.1"
 }
 
 group = "me.evgen"
@@ -28,7 +29,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed:0.11.2")
     implementation("com.squareup.okhttp3:logging-interceptor:3.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
-
+    implementation("gradle.plugin.org.flywaydb:gradle-plugin-publishing:7.8.1")
+    implementation("postgresql:postgresql:9.1-901-1.jdbc4")
 }
 
 tasks.test {
@@ -39,4 +41,11 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
+apply(plugin = "org.flywaydb.flyway")
+
+flyway {
+    url = "jdbc:postgresql://localhost:5432/adv_bot_db"
+    user = "postgres"
+    password = "postgres"
+}
 
