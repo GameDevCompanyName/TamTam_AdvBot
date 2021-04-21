@@ -97,10 +97,10 @@ fun main() {
 //                        UploadParams("res/busy_dog.jpg", UploadType.PHOTO)
 
                 // send message which replace old message
-                "${it.message}" answerFor it.callback.callbackId
+                "Предоставление площадки" answerFor it.callback.callbackId
 
                 // send notification (as Toast) for User
-                "${it.callback.callbackId}" answerNotification AnswerParams(
+                "Work in progress" answerNotification AnswerParams(
                     it.callback.callbackId,
                     it.callback.user.userId
                 )
