@@ -4,6 +4,8 @@ import chat.tamtam.botsdk.communications.longPolling
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
+import chat.tamtam.botsdk.model.prepared.Message
+import chat.tamtam.botsdk.model.prepared.User
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.model.request.ReusableMediaParams
@@ -14,6 +16,8 @@ import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 import model.*
 
 fun main() {
+
+    val statesMap = mutableMapOf<User, States>()
 
     longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
 
@@ -43,16 +47,21 @@ fun main() {
                 "Выберите один из предложенных вариантов:" prepareFor it.command.message.sender.userId sendWith inlineKeyboard
 
                 //simple request first 5 messages in chat
-                val resultRequest = 5 messagesIn it.command.message.recipient.chatId
                 // you can check result of your request
-                when (resultRequest) {
-                    is ResultRequest.Success -> resultRequest.response.size
-                    is ResultRequest.Failure -> resultRequest.error
-                }
+//                when (val resultRequest = 5 messagesIn it.command.message.recipient.chatId) {
+//                    is ResultRequest.Success -> resultRequest.response.size
+//                    is ResultRequest.Failure -> resultRequest.error
+//                }
 
                 // You can create extension function if you don't want to leave code here, but you need know,
                 // that all extension functions for Scopes, need be 'suspend'.
 //                sendTextWithKeyboard(it, inlineKeyboard)
+            }
+
+            onCommand("/test") {
+                "Type in ASD" sendFor it.command.message.sender.userId
+                statesMap[it.command.message.sender] = States.TEST
+
             }
 
             onUnknownCommand {
@@ -79,16 +88,13 @@ fun main() {
                 }
             }
 
-            // when user click on button with payload "HELLO", code below will start
             answerOnCallback(Payloads.ADVERT) {
+                statesMap[it.callback.user] = States.NORMAL
                 val inlineKeyboard = createAdvertKeyboard()
                 "Размещение рекламы" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
-
-//                "Я пока ничего не умею, но скоро обязательно научусь!" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
 
-            // when user click on button with payload "GOODBYE", code below will start
             answerOnCallback(Payloads.PLATFORM) {
 
 //                // send message with upload Photo which replace old message
@@ -97,7 +103,7 @@ fun main() {
 //                        UploadParams("res/busy_dog.jpg", UploadType.PHOTO)
 
                 // send message which replace old message
-                "Предоставление площадки" answerFor it.callback.callbackId
+                ("section is under development") answerFor (it.callback.callbackId)
 
                 // send notification (as Toast) for User
                 "Work in progress" answerNotification AnswerParams(
@@ -146,7 +152,10 @@ fun main() {
 
             answerOnCallback(Payloads.ADV_SETTINGS) {
                 "Работа с рекламой" prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith createAdvSettingsKeyboard()
+                        AnswerParams(
+                            it.callback.callbackId,
+                            it.callback.user.userId
+                        ) answerWith createAdvSettingsKeyboard()
             }
 
             answerOnCallback(Payloads.BACK_TO_ADVERT) {
@@ -156,8 +165,12 @@ fun main() {
             }
 
             answerOnCallback(Payloads.ADV_NAME) {
-
-                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                statesMap[it.callback.user] = States.AD_NAMING
+                "Введите название будущей рекламы:" prepareReplacementCurrentMessage
+                        AnswerParams(
+                            it.callback.callbackId,
+                            it.callback.user.userId
+                        ) answerWith constructorCancelKeyboard()
             }
             answerOnCallback(Payloads.ADV_TEXT) {
 
@@ -172,41 +185,57 @@ fun main() {
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
 
+            answerOnCallback(Payloads.WIP) {
+
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+            }
+
         }
 
         messages {
 
             // if current update is message, but not contains command, code below will start
             answerOnMessage { messageState ->
-                typingOn(messageState.message.recipient.chatId)
-                val result =
-                    RequestSendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId
-                when (result) {
-                    is ResultRequest.Success -> result.response
-                    is ResultRequest.Failure -> result.exception
+//                typingOn(messageState.message.recipient.chatId)
+                when (statesMap[messageState.message.sender]) {
+                    States.NORMAL -> {
+                        val result =
+                            RequestSendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId
+                        when (result) {
+                            is ResultRequest.Success -> result.response
+                            is ResultRequest.Failure -> result.exception
+                        }
+                    }
+                    States.AD_NAMING -> {
+                        "Текущее название рекламы: \n${messageState.message.body.text}" prepareFor
+                                messageState.message.sender.userId sendWith createConstructorKeyboard()
+                        statesMap[messageState.message.sender] = States.NORMAL
+                    }
+                    else -> {
+                        val result =
+                            RequestSendMessage(messageState.message.body.text) sendFor messageState.message.recipient.chatId
+                        when (result) {
+                            is ResultRequest.Success -> result.response
+                            is ResultRequest.Failure -> result.exception
+                        }
+                        statesMap[messageState.message.sender] = States.NORMAL
+                    }
                 }
-                typingOff(messageState.message.recipient.chatId)
+
+
+
+//                typingOff(messageState.message.recipient.chatId)
             }
 
         }
 
-//        users {
-//
-//            // if some user added in chat where your bot is member, code below will start
-//            onAddedUserToChat {
-//                """Привет, ${it.user.name}!
-//                    |Не хочешь купить немного рекламы?
-//                """.trimMargin() sendFor it.chatId
-//            }
-//
-//            // if some user removed in chat where your bot is member, code below will start
-//            onRemovedUserFromChat {
-//
-//            }
-//
-//        }
-
     }
+}
+
+enum class States {
+    NORMAL,
+    TEST,
+    AD_NAMING
 }
 
 private suspend fun CommandsScope.sendTextWithKeyboard(state: CommandState, keyboard: InlineKeyboard) {

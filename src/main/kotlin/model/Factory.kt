@@ -59,15 +59,22 @@ fun createAdvSettingsKeyboard(): InlineKeyboard {
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Настроить рекламу",
-                payload = Payloads.CONSTRUCT
+                "Настроить рекламу ⚙",
+                payload = Payloads.WIP
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Отключить рекламу",
-                payload = Payloads.ADV_NAME
+                "Просмотр метрик 📊",
+                payload = Payloads.WIP
+            )
+        }
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "Отключить рекламу 🔒",
+                payload = Payloads.WIP
             )
         }
         this add buttonRow {
@@ -85,28 +92,28 @@ fun createConstructorKeyboard(): InlineKeyboard {
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Настройка названия",
+                "Настройка названия ✏",
                 payload = Payloads.ADV_NAME
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Настройка текста",
+                "Настройка текста 📃",
                 payload = Payloads.ADV_TEXT
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Настройка изображения",
+                "Настройка изображения 📺",
                 payload = Payloads.ADV_IMG
             )
         }
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "Настройка каналов",
+                "Настройка каналов 📢",
                 payload = Payloads.ADV_TARGETS
             )
         }
@@ -120,6 +127,18 @@ fun createConstructorKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Готово ✅",
+                payload = Payloads.ADVERT
+            )
+        }
+    }
+}
+
+fun constructorCancelKeyboard(): InlineKeyboard {
+    return keyboard {
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "⬅ Назад",
                 payload = Payloads.ADVERT
             )
         }
