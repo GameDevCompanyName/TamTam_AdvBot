@@ -18,6 +18,9 @@ import model.*
 fun main() {
 
     val statesMap = mutableMapOf<User, States>()
+    val adsMap = mutableMapOf<User, MutableList<Advert>>()
+    val tempAdMap =
+        mutableMapOf<User, Advert>() // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" улетает в adsMap
 
     longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
 
@@ -39,6 +42,7 @@ fun main() {
         commands {
 
             onCommand("/start") {
+                statesMap[it.command.message.sender] = States.NORMAL
                 val inlineKeyboard = createStartKeyboard()
                 // send text for user
                 "Вы можете разместить рекламу или предоставить площадку для ее размещения" sendFor it.command.message.sender.userId
@@ -59,17 +63,43 @@ fun main() {
             }
 
             onCommand("/test") {
-                "Type in ASD" sendFor it.command.message.sender.userId
+                "PASSWORD REQUIRED" sendFor it.command.message.sender.userId
                 statesMap[it.command.message.sender] = States.TEST
 
             }
 
+            onCommand("/close") {
+                if (statesMap[it.command.message.sender] == States.ADMIN) {
+                    statesMap[it.command.message.sender] = States.NORMAL
+                    "Admin mode closed" sendFor it.command.message.sender.userId
+                } else {
+                    """I'm sorry, but I don't know this command, you can try /start
+                    |if you don't remember all my available command.""".trimMargin() sendFor it.command.message.sender.userId
+                }
+            }
+
+            onCommand("/maps") {
+//                if (statesMap[it.command.message.sender] == States.ADMIN) {
+                for (entry in statesMap) {
+                    val (user, state) = entry
+                    """UserId: ${user.userId}
+                            |UserName: ${user.name}
+                            |State: ${state.name}
+                        """.trimMargin() sendFor it.command.message.sender.userId
+                }
+
+//                } else {
+//                    """I'm sorry, but I don't know this command, you can try /start
+//                    |if you don't remember all my available command.""".trimMargin() sendFor it.command.message.sender.userId
+//                }
+            }
+
             onUnknownCommand {
                 // You can reuse some medias in other messages. Reusable token or id or fileId, you will get after send message with media
-                "Reuse had already sent image" prepareFor it.command.message.sender.userId sendWith ReusableMediaParams(
-                    UploadType.PHOTO,
-                    token = "TOKEN"
-                )
+//                "Reuse had already sent image" prepareFor it.command.message.sender.userId sendWith ReusableMediaParams(
+//                    UploadType.PHOTO,
+//                    token = "TOKEN"
+//                )
 
                 """I'm sorry, but I don't know this command, you can try /start
                     |if you don't remember all my available command.""".trimMargin() sendFor it.command.message.sender.userId
@@ -166,15 +196,23 @@ fun main() {
 
             answerOnCallback(Payloads.ADV_NAME) {
                 statesMap[it.callback.user] = States.AD_NAMING
-                "Введите название будущей рекламы:" prepareReplacementCurrentMessage
+                """Введите название будущей рекламы.
+                    |Название используется для идентификации и в самом объявлении показано не будет.
+                """.trimMargin() prepareReplacementCurrentMessage
                         AnswerParams(
                             it.callback.callbackId,
                             it.callback.user.userId
                         ) answerWith constructorCancelKeyboard()
             }
             answerOnCallback(Payloads.ADV_TEXT) {
-
-                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+                statesMap[it.callback.user] = States.AD_TEXTING
+                """Введите текст будущей рекламы.
+                    |Именно этот текст будет показан в объявлении.
+                """.trimMargin() prepareReplacementCurrentMessage
+                        AnswerParams(
+                            it.callback.callbackId,
+                            it.callback.user.userId
+                        ) answerWith constructorCancelKeyboard()
             }
             answerOnCallback(Payloads.ADV_IMG) {
 
@@ -210,10 +248,31 @@ fun main() {
                         "Текущее название рекламы: \n${messageState.message.body.text}" prepareFor
                                 messageState.message.sender.userId sendWith createConstructorKeyboard()
                         statesMap[messageState.message.sender] = States.NORMAL
+                        tempAdMap[messageState.message.sender] = Advert(messageState.message.body.text)
+                    }
+                    States.AD_TEXTING -> {
+                        statesMap[messageState.message.sender] = States.NORMAL
+                        val ad = tempAdMap[messageState.message.sender]
+                        if (ad != null) {
+                            ad.text = messageState.message.body.text
+                            """Текущее название рекламы:
+                            |${ad.name}
+                            |Текущий текст рекламы:
+                            |${ad.text}
+                            |""".trimMargin() prepareFor
+                                    messageState.message.sender.userId sendWith createConstructorKeyboard()
+                        }
+
+                    }
+                    States.TEST -> {
+                        if (messageState.message.body.text == "admin") {
+                            statesMap[messageState.message.sender] = States.ADMIN
+                            "Welcome, master" sendFor messageState.message.sender.userId
+                        } else statesMap[messageState.message.sender] = States.NORMAL
                     }
                     else -> {
                         val result =
-                            RequestSendMessage(messageState.message.body.text) sendFor messageState.message.recipient.chatId
+                            RequestSendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId
                         when (result) {
                             is ResultRequest.Success -> result.response
                             is ResultRequest.Failure -> result.exception
@@ -221,7 +280,6 @@ fun main() {
                         statesMap[messageState.message.sender] = States.NORMAL
                     }
                 }
-
 
 
 //                typingOff(messageState.message.recipient.chatId)
@@ -235,7 +293,9 @@ fun main() {
 enum class States {
     NORMAL,
     TEST,
-    AD_NAMING
+    ADMIN,
+    AD_NAMING,
+    AD_TEXTING
 }
 
 private suspend fun CommandsScope.sendTextWithKeyboard(state: CommandState, keyboard: InlineKeyboard) {

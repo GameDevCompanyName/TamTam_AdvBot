@@ -5,6 +5,7 @@ import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import Payloads
+import chat.tamtam.botsdk.model.ButtonIntent
 
 fun initialText(name: String): String {
     return """Привет, $name! Я бот для работы с рекламой.
@@ -40,7 +41,7 @@ fun createAdvertKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Создать рекламу",
-                payload = Payloads.CONSTRUCT
+                payload = Payloads.ADV_NAME
             )
         }
 
@@ -74,6 +75,14 @@ fun createAdvSettingsKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Отключить рекламу 🔒",
+                payload = Payloads.WIP
+            )
+        }
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "Удалить рекламу 🗑",
+                intent = ButtonIntent.NEGATIVE,
                 payload = Payloads.WIP
             )
         }
@@ -122,11 +131,13 @@ fun createConstructorKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "❌ Отмена",
+                intent = ButtonIntent.NEGATIVE,
                 payload = Payloads.ADVERT
             )
             +Button(
                 ButtonType.CALLBACK,
                 "Готово ✅",
+                intent = ButtonIntent.POSITIVE,
                 payload = Payloads.ADVERT
             )
         }
@@ -138,9 +149,15 @@ fun constructorCancelKeyboard(): InlineKeyboard {
         +buttonRow {
             +Button(
                 ButtonType.CALLBACK,
-                "⬅ Назад",
+                "❌ Отмена",
                 payload = Payloads.ADVERT
             )
         }
+    }
+}
+
+fun emptyKeyboard(): InlineKeyboard {
+    return keyboard {
+
     }
 }

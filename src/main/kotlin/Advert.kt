@@ -1,9 +1,6 @@
 
 
-class Advert(
-    val name: String,
-    val text: String
-    ) {
-
+data class Advert(val name: String) {
+    var text: String = ""
 
 }
