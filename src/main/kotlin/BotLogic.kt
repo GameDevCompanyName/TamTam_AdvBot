@@ -10,7 +10,9 @@ import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.model.request.ReusableMediaParams
 import chat.tamtam.botsdk.model.request.UploadType
+import chat.tamtam.botsdk.scopes.CallbacksScope
 import chat.tamtam.botsdk.scopes.CommandsScope
+import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
 import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 import model.*
@@ -18,7 +20,7 @@ import model.*
 fun main() {
 
     val statesMap = mutableMapOf<User, States>()
-    val adsMap = mutableMapOf<User, MutableList<Advert>>()
+    val adsMap = mutableMapOf<User, MutableSet<Advert>>()
     val tempAdMap =
         mutableMapOf<User, Advert>() // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" улетает в adsMap
 
@@ -42,6 +44,7 @@ fun main() {
         commands {
 
             onCommand("/start") {
+                adsMap[it.command.message.sender] = mutableSetOf()
                 statesMap[it.command.message.sender] = States.NORMAL
                 val inlineKeyboard = createStartKeyboard()
                 // send text for user
@@ -80,13 +83,23 @@ fun main() {
 
             onCommand("/maps") {
 //                if (statesMap[it.command.message.sender] == States.ADMIN) {
-                for (entry in statesMap) {
-                    val (user, state) = entry
+//                for (entry in statesMap) {
+//                    val (user, state) = entry
+//                    """UserId: ${user.userId}
+//                            |UserName: ${user.name}
+//                            |State: ${state.name}
+//                        """.trimMargin() sendFor it.command.message.sender.userId
+//                }
+                for (entry in tempAdMap) {
+                    val (user, ad) = entry
                     """UserId: ${user.userId}
                             |UserName: ${user.name}
-                            |State: ${state.name}
+                            |Ad name: ${ad.name}
+                            |Ad text: ${ad.text}
                         """.trimMargin() sendFor it.command.message.sender.userId
                 }
+
+
 
 //                } else {
 //                    """I'm sorry, but I don't know this command, you can try /start
@@ -157,15 +170,17 @@ fun main() {
             }
 
             answerOnCallback(Payloads.ADV_LIST) {
+                val ads = adsMap[it.callback.user]
                 val inlineKeyboard = keyboard {
-                    for (i in 0..2) {
-                        val n = i + 1
-                        +buttonRow {
-                            +Button(
-                                ButtonType.CALLBACK,
-                                "Реклама №$n",
-                                payload = Payloads.ADV_SETTINGS
-                            )
+                    if (ads != null) {
+                        for (entry in ads) {
+                            +buttonRow {
+                                +Button(
+                                    ButtonType.CALLBACK,
+                                    entry.name,
+                                    payload = Payloads.WIP
+                                )
+                            }
                         }
                     }
                     +buttonRow {
@@ -176,7 +191,9 @@ fun main() {
                         )
                     }
                 }
-                "Ваши объявления:" prepareReplacementCurrentMessage
+                if (ads != null) "Ваши объявления:" prepareReplacementCurrentMessage
+                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
+                else "Здесь будут отображаться ваши объявления" prepareReplacementCurrentMessage
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
@@ -227,6 +244,25 @@ fun main() {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
+
+            answerOnCallback(Payloads.TEST) {
+
+                "${it.message?.body?.attachments?.get(0)}" replaceCurrentMessage it.callback.callbackId
+            }
+
+            answerOnCallback(Payloads.MAKER_DONE) {
+                val user = it.callback.user
+                tempAdMap[user]?.let { it1 -> adsMap[user]?.add(it1) }
+                tempAdMap.remove(user)
+                statesMap[user] = States.NORMAL
+                "Реклама успешно создана" answerNotification AnswerParams(
+                    it.callback.callbackId,
+                    it.callback.user.userId
+                )
+                "Размещение рекламы" prepareReplacementCurrentMessage
+                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith createAdvertKeyboard()
+            }
+
 
         }
 
@@ -296,6 +332,12 @@ enum class States {
     ADMIN,
     AD_NAMING,
     AD_TEXTING
+}
+
+private fun CallbacksScope.answerOnCallbackText(payload: String, text: String) {
+    answerOnCallback(payload) {
+        text answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+    }
 }
 
 private suspend fun CommandsScope.sendTextWithKeyboard(state: CommandState, keyboard: InlineKeyboard) {

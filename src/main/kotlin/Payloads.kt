@@ -11,4 +11,6 @@ object Payloads {
     const val BACK_TO_ADVERT = "BACK_TO_ADVERT"
     const val ADV_SETTINGS = "ADV_SETTINGS"
     const val WIP = "WIP"
+    const val TEST = "TEST"
+    const val MAKER_DONE = "MAKER_DONE"
 }

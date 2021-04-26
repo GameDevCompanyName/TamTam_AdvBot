@@ -27,6 +27,13 @@ fun createStartKeyboard(): InlineKeyboard {
                 payload = Payloads.PLATFORM
             )
         }
+        +buttonRow {
+            +Button(
+                ButtonType.CALLBACK,
+                "test",
+                payload = Payloads.TEST
+            )
+        }
     }
 }
 
@@ -138,7 +145,7 @@ fun createConstructorKeyboard(): InlineKeyboard {
                 ButtonType.CALLBACK,
                 "Готово ✅",
                 intent = ButtonIntent.POSITIVE,
-                payload = Payloads.ADVERT
+                payload = Payloads.MAKER_DONE
             )
         }
     }
@@ -156,8 +163,3 @@ fun constructorCancelKeyboard(): InlineKeyboard {
     }
 }
 
-fun emptyKeyboard(): InlineKeyboard {
-    return keyboard {
-
-    }
-}
