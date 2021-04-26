@@ -169,6 +169,7 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
+            //TODO: Придумать как вызывать настройки конкретной рекламы по кнопке
             answerOnCallback(Payloads.ADV_LIST) {
                 val ads = adsMap[it.callback.user]
                 val inlineKeyboard = keyboard {
@@ -211,6 +212,7 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
+            //TODO: добавить проверку на наличие рекламы с таким названием у юзера в adsMap
             answerOnCallback(Payloads.ADV_NAME) {
                 statesMap[it.callback.user] = States.AD_NAMING
                 """Введите название будущей рекламы.
