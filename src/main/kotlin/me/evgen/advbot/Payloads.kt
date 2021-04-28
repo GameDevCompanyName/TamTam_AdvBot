@@ -5,6 +5,7 @@ object Payloads {
     const val BACK_TO_START = "BACK_TO_START"
 
     const val ADVERT = "ADVERT"
+    const val ADV_SETTINGS = "ADV_SETTINGS"
     const val ADV_LIST = "ADV_LIST"
     const val ADV_TITLE = "ADV_NAME"
     const val ADV_TEXT = "ADV_TEXT"
@@ -15,4 +16,8 @@ object Payloads {
 
     const val WIP = "WIP"
     const val TEST = "TEST"
+
+    fun getAdvSettingsPayload(advId: Long): String {
+        return "$ADV_SETTINGS/$advId"
+    }
 }
