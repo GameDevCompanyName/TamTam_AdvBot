@@ -72,7 +72,8 @@ suspend fun CallbacksScope.callbackAdvList(callbackState: CallbackState) {
                     callbackOnAd.callback.user,
                     advId
                 )
-                """Работа с рекламой: ${advert?.title ?: "UNKNOWN"}""" prepareReplacementCurrentMessage
+                """Работа с рекламой: 
+                    | ${advert?.title ?: "UNKNOWN"}""".trimMargin() prepareReplacementCurrentMessage
                         AnswerParams(
                             callbackOnAd.callback.callbackId,
                             callbackOnAd.callback.user.userId
