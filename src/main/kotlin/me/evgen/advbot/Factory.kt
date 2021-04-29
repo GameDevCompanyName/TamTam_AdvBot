@@ -1,10 +1,9 @@
-package model
+package me.evgen.advbot
 
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
-import Payloads
 import chat.tamtam.botsdk.model.ButtonIntent
 
 fun initialText(name: String): String {
@@ -27,13 +26,13 @@ fun createStartKeyboard(): InlineKeyboard {
                 payload = Payloads.PLATFORM
             )
         }
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "test",
-                payload = Payloads.TEST
-            )
-        }
+//        +buttonRow {
+//            +Button(
+//                ButtonType.CALLBACK,
+//                "test",
+//                payload = Payloads.TEST
+//            )
+//        }
     }
 }
 
@@ -48,7 +47,7 @@ fun createAdvertKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Создать рекламу",
-                payload = Payloads.ADV_NAME
+                payload = Payloads.ADV_TITLE
             )
         }
 
@@ -109,7 +108,7 @@ fun createConstructorKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Настройка названия ✏",
-                payload = Payloads.ADV_NAME
+                payload = Payloads.ADV_TITLE
             )
         }
         +buttonRow {

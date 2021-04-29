@@ -1,3 +1,5 @@
+package me.evgen.advbot
+
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
@@ -10,6 +12,10 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.scopes.CallbacksScope
 import chat.tamtam.botsdk.scopes.CommandsScope
 import chat.tamtam.botsdk.state.CommandState
+import me.evgen.advbot.callbacks.*
+import me.evgen.advbot.model.TempAdvert
+import me.evgen.advbot.storage.LocalStorage
+import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 import db.entity.UserEntity
 import db.service.AdvertisementDbService
 import db.service.UserDbService
@@ -17,17 +23,7 @@ import model.*
 import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 
 fun main() {
-
-    val userDbService = UserDbService()
-    val advertisementDbService = AdvertisementDbService()
-
-    val statesMap = mutableMapOf<User, States>()
-    val adsMap = mutableMapOf<User, MutableSet<Advert>>()
-    val tempAdMap =
-        mutableMapOf<User, Advert>() // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" улетает в adsMap
-
     longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
-
         // when User start your bot, code below will start
         onStartBot {
             initialText(it.user.name) sendFor it.user.userId
@@ -40,14 +36,13 @@ fun main() {
 
         // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-
+            //Nothing
         }
 
         commands {
 
             onCommand("/start") {
-                adsMap[it.command.message.sender] = mutableSetOf()
-                statesMap[it.command.message.sender] = States.NORMAL
+                BotController.statesMap[it.command.message.sender] = States.NORMAL
                 val inlineKeyboard = createStartKeyboard()
                 // send text for user
                 "Вы можете разместить рекламу или предоставить площадку для ее размещения" sendFor it.command.message.sender.userId
@@ -55,8 +50,7 @@ fun main() {
                 // first prepare text and userId then send for user prepared text with InlineKeyboard or other Attach
                 "Выберите один из предложенных вариантов:" prepareFor it.command.message.sender.userId sendWith inlineKeyboard
 
-                //simple request first 5 messages in chat
-                // you can check result of your request
+                //simple request first 5 messages in chat. You can check result of your request
 //                when (val resultRequest = 5 messagesIn it.command.message.recipient.chatId) {
 //                    is ResultRequest.Success -> resultRequest.response.size
 //                    is ResultRequest.Failure -> resultRequest.error
@@ -64,18 +58,18 @@ fun main() {
 
                 // You can create extension function if you don't want to leave code here, but you need know,
                 // that all extension functions for Scopes, need be 'suspend'.
-//                sendTextWithKeyboard(it, inlineKeyboard)
+//                me.evgen.bot.sendTextWithKeyboard(it, inlineKeyboard)
             }
 
             onCommand("/test") {
                 "PASSWORD REQUIRED" sendFor it.command.message.sender.userId
-                statesMap[it.command.message.sender] = States.TEST
+                BotController.statesMap[it.command.message.sender] = States.TEST
 
             }
 
             onCommand("/close") {
-                if (statesMap[it.command.message.sender] == States.ADMIN) {
-                    statesMap[it.command.message.sender] = States.NORMAL
+                if (BotController.statesMap[it.command.message.sender] == States.ADMIN) {
+                    BotController.statesMap[it.command.message.sender] = States.NORMAL
                     "Admin mode closed" sendFor it.command.message.sender.userId
                 } else {
                     """I'm sorry, but I don't know this command, you can try /start
@@ -84,7 +78,7 @@ fun main() {
             }
 
             onCommand("/maps") {
-//                if (statesMap[it.command.message.sender] == States.ADMIN) {
+//                if (statesMap[it.command.message.sender] == me.evgen.bot.States.ADMIN) {
 //                for (entry in statesMap) {
 //                    val (user, state) = entry
 //                    """UserId: ${user.userId}
@@ -92,15 +86,14 @@ fun main() {
 //                            |State: ${state.name}
 //                        """.trimMargin() sendFor it.command.message.sender.userId
 //                }
-                for (entry in tempAdMap) {
+                for (entry in BotController.tempAdMap) {
                     val (user, ad) = entry
                     """UserId: ${user.userId}
                             |UserName: ${user.name}
-                            |Ad name: ${ad.name}
+                            |Ad name: ${ad.title}
                             |Ad text: ${ad.text}
                         """.trimMargin() sendFor it.command.message.sender.userId
                 }
-
 
 
 //                } else {
