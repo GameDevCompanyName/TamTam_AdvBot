@@ -65,15 +65,22 @@ suspend fun CallbacksScope.callbackAdvList(callbackState: CallbackState) {
 
     for (entry in ads) {
         answerOnCallback(Payloads.getAdvSettingsPayload(entry.id)) { callbackOnAd ->
-            val advert = LocalStorage.getAd(
-                callbackOnAd.callback.user,
-                callbackOnAd.callback.payload.toLong()
-            )
-            """Работа с рекламой: ${advert?.title ?: "UNKNOWN"}""" prepareReplacementCurrentMessage
-                    AnswerParams(
-                        callbackOnAd.callback.callbackId,
-                        callbackOnAd.callback.user.userId
-                    ) answerWith createAdvSettingsKeyboard()
+            val argsPayload = Payloads.parsePayload(callbackOnAd.callback.payload)
+            val advId = argsPayload[Payloads.KEY_ADV_ID]?.toLong()
+            if (advId != null) {
+                val advert = LocalStorage.getAd(
+                    callbackOnAd.callback.user,
+                    advId
+                )
+                """Работа с рекламой: ${advert?.title ?: "UNKNOWN"}""" prepareReplacementCurrentMessage
+                        AnswerParams(
+                            callbackOnAd.callback.callbackId,
+                            callbackOnAd.callback.user.userId
+                        ) answerWith createAdvSettingsKeyboard()
+            } else {
+                "Ошибка! Нет такой рекламы." answerNotification
+                        AnswerParams(callbackOnAd.callback.callbackId, callbackOnAd.callback.user.userId)
+            }
         }
     }
 
