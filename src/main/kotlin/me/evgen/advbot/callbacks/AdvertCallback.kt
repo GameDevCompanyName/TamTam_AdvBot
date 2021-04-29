@@ -17,8 +17,8 @@ suspend fun CallbacksScope.callbackAdvert(callbackState: CallbackState) {
             AnswerParams(callbackState.callback.callbackId, callbackState.callback.user.userId) answerWith inlineKeyboard
 }
 
-suspend fun CallbacksScope.callbackAdvTitle(callbackState: CallbackState) {
-    BotController.statesMap[callbackState.callback.user] = States.AD_NAMING
+suspend fun CallbacksScope.callbackAdvCreate(callbackState: CallbackState) {
+    BotController.statesMap[callbackState.callback.user] = States.ADV_CREATE
 
     """Введите название будущей рекламы.
        |Название используется для идентификации и в самом объявлении показано не будет.
@@ -29,16 +29,46 @@ suspend fun CallbacksScope.callbackAdvTitle(callbackState: CallbackState) {
             ) answerWith constructorCancelKeyboard()
 }
 
-suspend fun CallbacksScope.callbackAdvText(callbackState: CallbackState) {
-    BotController.statesMap[callbackState.callback.user] = States.AD_TEXTING
+suspend fun CallbacksScope.callbackAdvTitle(callbackState: CallbackState) {
+    val state = BotController.statesMap[callbackState.callback.user]!!
+    var needAction = true
+    BotController.statesMap[callbackState.callback.user] = when (state) {
+        States.ADV_CONSTRUCTOR_WHEN_CREATE -> States.ADV_TITLING_WHEN_CREATE
+        States.ADV_CONSTRUCTOR_WHEN_SETTING -> States.ADV_TITLING_WHEN_SETTING
+        else -> {
+            needAction = false
+            state
+        }
+    }
 
-    """Введите текст будущей рекламы.
-       |Именно этот текст будет показан в объявлении.
-    """.trimMargin() prepareReplacementCurrentMessage
-            AnswerParams(
-                callbackState.callback.callbackId,
-                callbackState.callback.user.userId
-            ) answerWith constructorCancelKeyboard()
+    if (needAction) {
+        "Введите новое название рекламы." prepareReplacementCurrentMessage
+                AnswerParams(
+                    callbackState.callback.callbackId,
+                    callbackState.callback.user.userId
+                ) answerWith constructorCancelKeyboard()
+    }
+}
+
+suspend fun CallbacksScope.callbackAdvText(callbackState: CallbackState) {
+    val state = BotController.statesMap[callbackState.callback.user]!!
+    var needAction = true
+    BotController.statesMap[callbackState.callback.user] = when (state) {
+        States.ADV_CONSTRUCTOR_WHEN_CREATE -> States.ADV_TEXTING_WHEN_CREATE
+        States.ADV_CONSTRUCTOR_WHEN_SETTING -> States.ADV_TEXTING_WHEN_SETTING
+        else -> {
+            needAction = false
+            state
+        }
+    }
+
+    if (needAction) {
+        "Введите новый текст рекламы" prepareReplacementCurrentMessage
+                AnswerParams(
+                    callbackState.callback.callbackId,
+                    callbackState.callback.user.userId
+                ) answerWith constructorCancelKeyboard()
+    }
 }
 
 suspend fun CallbacksScope.callbackAdvList(callbackState: CallbackState) {
@@ -68,6 +98,8 @@ suspend fun CallbacksScope.callbackAdvList(callbackState: CallbackState) {
             val argsPayload = Payloads.parsePayload(callbackOnAd.callback.payload)
             val advId = argsPayload[Payloads.KEY_ADV_ID]?.toLong()
             if (advId != null) {
+                BotController.statesMap[callbackState.callback.user] = States.ADV_SETTING
+
                 val advert = LocalStorage.getAd(
                     callbackOnAd.callback.user,
                     advId

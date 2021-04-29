@@ -47,7 +47,7 @@ fun createAdvertKeyboard(): InlineKeyboard {
             +Button(
                 ButtonType.CALLBACK,
                 "Создать рекламу",
-                payload = Payloads.ADV_TITLE
+                payload = Payloads.ADV_CREATE
             )
         }
 

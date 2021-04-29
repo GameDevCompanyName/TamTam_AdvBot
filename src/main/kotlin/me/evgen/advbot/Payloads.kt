@@ -7,6 +7,7 @@ object Payloads {
     const val BACK_TO_START = "BACK_TO_START"
 
     const val ADVERT = "ADVERT"
+    const val ADV_CREATE = "ADV_CREATE"
     const val ADV_SETTINGS = "ADV_SETTINGS"
     const val ADV_LIST = "ADV_LIST"
     const val ADV_TITLE = "ADV_NAME"

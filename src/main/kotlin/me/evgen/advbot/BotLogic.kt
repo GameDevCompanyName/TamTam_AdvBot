@@ -133,6 +133,9 @@ fun main() {
             answerOnCallback(Payloads.ADV_LIST) {
                 callbackAdvList(it)
             }
+            answerOnCallback(Payloads.ADV_CREATE) {
+                callbackAdvCreate(it)
+            }
             answerOnCallback(Payloads.ADV_TITLE) {
                 callbackAdvTitle(it)
             }
@@ -181,23 +184,42 @@ fun main() {
                             is ResultRequest.Failure -> result.exception
                         }
                     }
-                    States.AD_NAMING -> {
-                        "Текущее название рекламы: \n${messageState.message.body.text}" prepareFor
-                                messageState.message.sender.userId sendWith createConstructorKeyboard()
-                        BotController.statesMap[messageState.message.sender] = States.NORMAL
-                        BotController.tempAdMap[messageState.message.sender] = TempAdvert().apply {
+                    States.ADV_CREATE -> {
+                        BotController.statesMap[messageState.message.sender] = States.ADV_CONSTRUCTOR_WHEN_CREATE
+
+                        val tempAdvert = TempAdvert().apply {
                             title = messageState.message.body.text
                         }
+                        BotController.tempAdMap[messageState.message.sender] = tempAdvert
+
+                        createConstructorMessage(tempAdvert) prepareFor
+                                messageState.message.sender.userId sendWith createConstructorKeyboard()
                     }
-                    States.AD_TEXTING -> {
-                        BotController.statesMap[messageState.message.sender] = States.NORMAL
-                        BotController.tempAdMap[messageState.message.sender]?.apply {
-                            text = messageState.message.body.text
-                            """Текущее название рекламы:
-                            |${title}
-                            |Текущий текст рекламы:
-                            |${text}
-                            |""".trimMargin() prepareFor
+                    States.ADV_TITLING_WHEN_CREATE -> {
+                        BotController.statesMap[messageState.message.sender] = States.ADV_CONSTRUCTOR_WHEN_CREATE
+
+                        val tempAdvert = BotController.tempAdMap[messageState.message.sender]
+                        if (tempAdvert != null) {
+                            tempAdvert.title = messageState.message.body.text
+
+                            createConstructorMessage(tempAdvert) prepareFor
+                                    messageState.message.sender.userId sendWith createConstructorKeyboard()
+                        } else {
+                            "Ошибка! Невозможно изменить название рекламы." prepareFor
+                                    messageState.message.sender.userId sendWith createConstructorKeyboard()
+                        }
+                    }
+                    States.ADV_TEXTING_WHEN_CREATE -> {
+                        BotController.statesMap[messageState.message.sender] = States.ADV_CONSTRUCTOR_WHEN_CREATE
+
+                        val tempAdvert = BotController.tempAdMap[messageState.message.sender]
+                        if (tempAdvert != null) {
+                            tempAdvert.text = messageState.message.body.text
+
+                            createConstructorMessage(tempAdvert) prepareFor
+                                    messageState.message.sender.userId sendWith createConstructorKeyboard()
+                        } else {
+                            "Ошибка! Невозможно изменить текст рекламы." prepareFor
                                     messageState.message.sender.userId sendWith createConstructorKeyboard()
                         }
                     }
@@ -227,11 +249,31 @@ fun main() {
 enum class States {
     NORMAL,
 
-    AD_NAMING,
-    AD_TEXTING,
+    ADV_CREATE,
+    ADV_SETTING,
+    ADV_CONSTRUCTOR_WHEN_CREATE,
+    ADV_CONSTRUCTOR_WHEN_SETTING,
+    ADV_TITLING_WHEN_CREATE,
+    ADV_TEXTING_WHEN_CREATE,
+    ADV_TITLING_WHEN_SETTING,
+    ADV_TEXTING_WHEN_SETTING,
 
     TEST,
     ADMIN
+}
+
+private fun createConstructorMessage(tempAdvert: TempAdvert): String {
+    val title = """Текущее название рекламы:
+        |${tempAdvert.title}""".trimMargin()
+    val text = if (tempAdvert.text.isBlank()) {
+        ""
+    } else {
+        """Текущий текст рекламы:
+        |${tempAdvert.text}""".trimMargin()
+    }
+
+    return """$title
+        |$text""".trimMargin()
 }
 
 private fun CallbacksScope.answerOnCallbackText(payload: String, text: String) {
