@@ -18,6 +18,7 @@ object Payloads {
     const val TEST = "TEST"
 
     fun getAdvSettingsPayload(advId: Long): String {
-        return "$ADV_SETTINGS/$advId"
+        return "$advId"
+//        return "$ADV_SETTINGS/$advId"
     }
 }
