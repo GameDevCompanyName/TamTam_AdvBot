@@ -1,9 +1,9 @@
-package db.service
+package me.evgen.advbot.db.service
 
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.sqlQuery
 import com.vladsch.kotlin.jdbc.usingDefault
-import db.entity.UserEntity
+import me.evgen.advbot.db.entity.UserEntity
 
 class UserDbService: AbstractDbService<UserEntity>() {
 

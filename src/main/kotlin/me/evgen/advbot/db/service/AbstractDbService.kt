@@ -1,4 +1,4 @@
-package db.service
+package me.evgen.advbot.db.service
 
 import com.vladsch.kotlin.jdbc.HikariCP
 import com.vladsch.kotlin.jdbc.SessionImpl

@@ -3,10 +3,6 @@ package me.evgen.advbot
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
-import chat.tamtam.botsdk.keyboard.keyboard
-import chat.tamtam.botsdk.model.Button
-import chat.tamtam.botsdk.model.ButtonType
-import chat.tamtam.botsdk.model.prepared.User
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.scopes.CallbacksScope
@@ -15,11 +11,6 @@ import chat.tamtam.botsdk.state.CommandState
 import me.evgen.advbot.callbacks.*
 import me.evgen.advbot.model.TempAdvert
 import me.evgen.advbot.storage.LocalStorage
-import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
-import db.entity.UserEntity
-import db.service.AdvertisementDbService
-import db.service.UserDbService
-import model.*
 import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 
 fun main() {
@@ -126,36 +117,8 @@ fun main() {
                 }
             }
 
-            answerOnCallback(Payloads.ADVERT) {
-                statesMap[it.callback.user] = States.NORMAL
-                val inlineKeyboard = createAdvertKeyboard()
-                "Размещение рекламы" prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
-            }
-
             answerOnCallback(Payloads.PLATFORM) {
-
-//                // send message with upload Photo which replace old message
-//                "Предоставление площадки" prepareReplacementCurrentMessage
-//                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith
-//                        UploadParams("res/busy_dog.jpg", UploadType.PHOTO)
-
-                // send message which replace old message
-                ("section is under development") answerFor (it.callback.callbackId)
-
-                // send notification (as Toast) for User
-                "Work in progress" answerNotification AnswerParams(
-                    it.callback.callbackId,
-                    it.callback.user.userId
-                )
-            }
-
-            answerOnCallback(Payloads.CONSTRUCT) {
-                val inlineKeyboard = createConstructorKeyboard()
-                """Добро пожаловать в конструктор рекламы!
-                |Для навигации используйте кнопки:
-                 """.trimMargin() prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
+                callbackPlatform(it)
             }
 
             answerOnCallback(Payloads.BACK_TO_START) {
@@ -164,69 +127,17 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
             }
 
-            //TODO: Придумать как вызывать настройки конкретной рекламы по кнопке
+            answerOnCallback(Payloads.ADVERT) {
+                callbackAdvert(it)
+            }
             answerOnCallback(Payloads.ADV_LIST) {
-                val ads = adsMap[it.callback.user]
-                val inlineKeyboard = keyboard {
-                    if (ads != null) {
-                        for (entry in ads) {
-                            +buttonRow {
-                                +Button(
-                                    ButtonType.CALLBACK,
-                                    entry.name,
-                                    payload = Payloads.WIP
-                                )
-                            }
-                        }
-                    }
-                    +buttonRow {
-                        +Button(
-                            ButtonType.CALLBACK,
-                            "⬅ Назад",
-                            payload = Payloads.ADVERT
-                        )
-                    }
-                }
-                if (ads != null) "Ваши объявления:" prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
-                else "Здесь будут отображаться ваши объявления" prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
+                callbackAdvList(it)
             }
-
-            answerOnCallback(Payloads.ADV_SETTINGS) {
-                "Работа с рекламой" prepareReplacementCurrentMessage
-                        AnswerParams(
-                            it.callback.callbackId,
-                            it.callback.user.userId
-                        ) answerWith createAdvSettingsKeyboard()
-            }
-
-            answerOnCallback(Payloads.BACK_TO_ADVERT) {
-                val inlineKeyboard = createAdvertKeyboard()
-                "Размещение рекламы" prepareReplacementCurrentMessage
-                        AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith inlineKeyboard
-            }
-
-            //TODO: добавить проверку на наличие рекламы с таким названием у юзера в adsMap
-            answerOnCallback(Payloads.ADV_NAME) {
-                statesMap[it.callback.user] = States.AD_NAMING
-                """Введите название будущей рекламы.
-                    |Название используется для идентификации и в самом объявлении показано не будет.
-                """.trimMargin() prepareReplacementCurrentMessage
-                        AnswerParams(
-                            it.callback.callbackId,
-                            it.callback.user.userId
-                        ) answerWith constructorCancelKeyboard()
+            answerOnCallback(Payloads.ADV_TITLE) {
+                callbackAdvTitle(it)
             }
             answerOnCallback(Payloads.ADV_TEXT) {
-                statesMap[it.callback.user] = States.AD_TEXTING
-                """Введите текст будущей рекламы.
-                    |Именно этот текст будет показан в объявлении.
-                """.trimMargin() prepareReplacementCurrentMessage
-                        AnswerParams(
-                            it.callback.callbackId,
-                            it.callback.user.userId
-                        ) answerWith constructorCancelKeyboard()
+                callbackAdvText(it)
             }
             answerOnCallback(Payloads.ADV_IMG) {
 
@@ -236,22 +147,13 @@ fun main() {
 
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
-
-            answerOnCallback(Payloads.WIP) {
-
-                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
-            }
-
-            answerOnCallback(Payloads.TEST) {
-
-                "${it.message?.body?.attachments?.get(0)}" replaceCurrentMessage it.callback.callbackId
-            }
-
             answerOnCallback(Payloads.MAKER_DONE) {
                 val user = it.callback.user
-                tempAdMap[user]?.let { it1 -> adsMap[user]?.add(it1) }
-                tempAdMap.remove(user)
-                statesMap[user] = States.NORMAL
+                BotController.tempAdMap[user]?.apply {
+                    LocalStorage.addAdvert(user, this)
+                }
+                BotController.tempAdMap.remove(user)
+                BotController.statesMap[user] = States.NORMAL
                 "Реклама успешно создана" answerNotification AnswerParams(
                     it.callback.callbackId,
                     it.callback.user.userId
@@ -260,15 +162,17 @@ fun main() {
                         AnswerParams(it.callback.callbackId, it.callback.user.userId) answerWith createAdvertKeyboard()
             }
 
-
+            answerOnCallback(Payloads.WIP) {
+                "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+            }
+            answerOnCallback(Payloads.TEST) {
+                "${it.message?.body?.attachments?.get(0)}" replaceCurrentMessage it.callback.callbackId
+            }
         }
 
         messages {
-
-            // if current update is message, but not contains command, code below will start
             answerOnMessage { messageState ->
-//                typingOn(messageState.message.recipient.chatId)
-                when (statesMap[messageState.message.sender]) {
+                when (BotController.statesMap[messageState.message.sender]) {
                     States.NORMAL -> {
                         val result =
                             RequestSendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId
@@ -280,28 +184,28 @@ fun main() {
                     States.AD_NAMING -> {
                         "Текущее название рекламы: \n${messageState.message.body.text}" prepareFor
                                 messageState.message.sender.userId sendWith createConstructorKeyboard()
-                        statesMap[messageState.message.sender] = States.NORMAL
-                        tempAdMap[messageState.message.sender] = Advert(messageState.message.body.text)
+                        BotController.statesMap[messageState.message.sender] = States.NORMAL
+                        BotController.tempAdMap[messageState.message.sender] = TempAdvert().apply {
+                            title = messageState.message.body.text
+                        }
                     }
                     States.AD_TEXTING -> {
-                        statesMap[messageState.message.sender] = States.NORMAL
-                        val ad = tempAdMap[messageState.message.sender]
-                        if (ad != null) {
-                            ad.text = messageState.message.body.text
+                        BotController.statesMap[messageState.message.sender] = States.NORMAL
+                        BotController.tempAdMap[messageState.message.sender]?.apply {
+                            text = messageState.message.body.text
                             """Текущее название рекламы:
-                            |${ad.name}
+                            |${title}
                             |Текущий текст рекламы:
-                            |${ad.text}
+                            |${text}
                             |""".trimMargin() prepareFor
                                     messageState.message.sender.userId sendWith createConstructorKeyboard()
                         }
-
                     }
                     States.TEST -> {
                         if (messageState.message.body.text == "admin") {
-                            statesMap[messageState.message.sender] = States.ADMIN
+                            BotController.statesMap[messageState.message.sender] = States.ADMIN
                             "Welcome, master" sendFor messageState.message.sender.userId
-                        } else statesMap[messageState.message.sender] = States.NORMAL
+                        } else BotController.statesMap[messageState.message.sender] = States.NORMAL
                     }
                     else -> {
                         val result =
@@ -310,12 +214,9 @@ fun main() {
                             is ResultRequest.Success -> result.response
                             is ResultRequest.Failure -> result.exception
                         }
-                        statesMap[messageState.message.sender] = States.NORMAL
+                        BotController.statesMap[messageState.message.sender] = States.NORMAL
                     }
                 }
-
-
-//                typingOff(messageState.message.recipient.chatId)
             }
 
         }
@@ -325,10 +226,12 @@ fun main() {
 
 enum class States {
     NORMAL,
-    TEST,
-    ADMIN,
+
     AD_NAMING,
-    AD_TEXTING
+    AD_TEXTING,
+
+    TEST,
+    ADMIN
 }
 
 private fun CallbacksScope.answerOnCallbackText(payload: String, text: String) {
@@ -340,6 +243,3 @@ private fun CallbacksScope.answerOnCallbackText(payload: String, text: String) {
 private suspend fun CommandsScope.sendTextWithKeyboard(state: CommandState, keyboard: InlineKeyboard) {
     "Choose you dinner" prepareFor state.command.message.sender.userId sendWith keyboard
 }
-
-
-

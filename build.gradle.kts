@@ -45,8 +45,8 @@ tasks.withType<KotlinCompile> {
 apply(plugin = "org.flywaydb.flyway")
 
 flyway {
-    url = "jdbc:postgresql://localhost:5432/adv_bot_db"
-    user = "postgres"
-    password = "postgres"
+    url = project.property("db.url").toString()
+    user = project.property("db.user").toString()
+    password = project.property("db.password").toString()
 }
 
