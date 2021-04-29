@@ -26,13 +26,13 @@ fun createStartKeyboard(): InlineKeyboard {
                 payload = Payloads.PLATFORM
             )
         }
-        +buttonRow {
-            +Button(
-                ButtonType.CALLBACK,
-                "test",
-                payload = Payloads.TEST
-            )
-        }
+//        +buttonRow {
+//            +Button(
+//                ButtonType.CALLBACK,
+//                "test",
+//                payload = Payloads.TEST
+//            )
+//        }
     }
 }
 

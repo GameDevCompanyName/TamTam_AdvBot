@@ -192,7 +192,7 @@ fun main() {
                     States.AD_TEXTING -> {
                         BotController.statesMap[messageState.message.sender] = States.NORMAL
                         BotController.tempAdMap[messageState.message.sender]?.apply {
-                            title = messageState.message.body.text
+                            text = messageState.message.body.text
                             """Текущее название рекламы:
                             |${title}
                             |Текущий текст рекламы:
