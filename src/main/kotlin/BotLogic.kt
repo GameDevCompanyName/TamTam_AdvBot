@@ -4,20 +4,22 @@ import chat.tamtam.botsdk.communications.longPolling
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
-import chat.tamtam.botsdk.model.prepared.Message
 import chat.tamtam.botsdk.model.prepared.User
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.InlineKeyboard
-import chat.tamtam.botsdk.model.request.ReusableMediaParams
-import chat.tamtam.botsdk.model.request.UploadType
 import chat.tamtam.botsdk.scopes.CallbacksScope
 import chat.tamtam.botsdk.scopes.CommandsScope
-import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
-import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
+import db.entity.UserEntity
+import db.service.AdvertisementDbService
+import db.service.UserDbService
 import model.*
+import chat.tamtam.botsdk.model.request.SendMessage as RequestSendMessage
 
 fun main() {
+
+    val userDbService = UserDbService()
+    val advertisementDbService = AdvertisementDbService()
 
     val statesMap = mutableMapOf<User, States>()
     val adsMap = mutableMapOf<User, MutableSet<Advert>>()

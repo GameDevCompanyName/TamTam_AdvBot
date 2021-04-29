@@ -30,7 +30,8 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:3.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
     implementation("gradle.plugin.org.flywaydb:gradle-plugin-publishing:7.8.1")
-    implementation("postgresql:postgresql:9.1-901-1.jdbc4")
+    implementation("org.postgresql:postgresql:42.2.20")
+    implementation("com.vladsch.kotlin-jdbc:kotlin-jdbc:0.5.2")
 }
 
 tasks.test {
