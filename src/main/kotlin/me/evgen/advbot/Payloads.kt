@@ -1,5 +1,7 @@
 package me.evgen.advbot
 
+import com.google.common.base.Splitter
+
 object Payloads {
     const val PLATFORM = "PLATFORM"
     const val BACK_TO_START = "BACK_TO_START"
@@ -17,8 +19,23 @@ object Payloads {
     const val WIP = "WIP"
     const val TEST = "TEST"
 
+    const val KEY_PAYLOAD = "PAYLOAD"
+    const val KEY_ADV_ID = "ADV_ID"
+
     fun getAdvSettingsPayload(advId: Long): String {
-        return "$advId"
-//        return "$ADV_SETTINGS/$advId"
+        return "$ADV_SETTINGS?$KEY_ADV_ID=$advId"
+    }
+
+    fun parsePayload(payload: String): Map<String, String> {
+        val args = payload.split("?")
+        return if (args.size == 1) {
+            mutableMapOf<String, String>().apply {
+                put(KEY_PAYLOAD, args[0])
+            }
+        } else {
+            Splitter.on("&").withKeyValueSeparator("=").split(args[1]).toMutableMap().apply {
+                put(KEY_PAYLOAD, args[0])
+            }
+        }
     }
 }
