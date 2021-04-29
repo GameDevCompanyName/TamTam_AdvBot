@@ -31,6 +31,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
     implementation("gradle.plugin.org.flywaydb:gradle-plugin-publishing:7.8.1")
     implementation("postgresql:postgresql:9.1-901-1.jdbc4")
+
+    implementation("com.google.guava:guava:11.0.2")
+
 }
 
 tasks.test {
