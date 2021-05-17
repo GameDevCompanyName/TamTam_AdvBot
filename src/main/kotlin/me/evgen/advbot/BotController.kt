@@ -7,7 +7,7 @@ import java.lang.Exception
 
 object BotController {
     private val statesMap = mutableMapOf<User, BaseState>()
-    // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" улетает в adsMap
+    // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" сохраняется в базку
     val tempAdMap = mutableMapOf<User, TempAdvert>()
 
     suspend fun moveTo(newState: BaseState, user: User, isForce: Boolean = false, onSuccess: suspend (BaseState) -> Unit) {

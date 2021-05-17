@@ -70,25 +70,19 @@ fun getDoneButton(payload: Payload): Button {
     )
 }
 
-fun getCancelButton(payload: Payload): Button {
-    return Button(
-        ButtonType.CALLBACK,
-        "❌ Отмена",
-        payload = payload.toJson(),
-        intent = ButtonIntent.NEGATIVE
-    )
-}
-
-fun getAdvertMessage(tempAdvert: TempAdvert): String {
-    val title = """Текущее название рекламы:
-        |${tempAdvert.title}""".trimMargin()
-    val text = if (tempAdvert.text.isBlank()) {
-        ""
+fun getCancelButton(payload: Payload, needNegativeIntent: Boolean = false): Button {
+    return if (needNegativeIntent) {
+        Button(
+            ButtonType.CALLBACK,
+            "❌ Отмена",
+            payload = payload.toJson(),
+            intent = ButtonIntent.NEGATIVE
+        )
     } else {
-        """Текущий текст рекламы:
-        |${tempAdvert.text}""".trimMargin()
+        Button(
+            ButtonType.CALLBACK,
+            "❌ Отмена",
+            payload = payload.toJson()
+        )
     }
-
-    return """$title
-        |$text""".trimMargin()
 }

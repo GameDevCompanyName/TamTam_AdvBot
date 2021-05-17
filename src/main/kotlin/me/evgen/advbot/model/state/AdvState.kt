@@ -61,7 +61,10 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     ButtonType.CALLBACK,
                     "Удалить рекламу 🗑",
                     intent = ButtonIntent.NEGATIVE,
-                    payload = Payloads.WIP
+                    payload = Payload(
+                        AdvDeleteDialogState::class,
+                        AdvDeleteDialogState(timestamp, advertId).toJson()
+                    ).toJson()
                 )
             }
             +buttonRow {

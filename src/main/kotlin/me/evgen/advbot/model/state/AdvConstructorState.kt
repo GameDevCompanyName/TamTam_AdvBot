@@ -74,14 +74,14 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
                 +Button(
                     ButtonType.CALLBACK,
                     "Настройка изображения 📺",
-                    payload = Payloads.ADV_IMG
+                    payload = Payloads.WIP
                 )
             }
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
                     "Настройка каналов 📢",
-                    payload = Payloads.ADV_TARGETS
+                    payload = Payloads.WIP
                 )
             }
 
@@ -100,7 +100,7 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
                         ).toJson()
                     )
                 }
-                +getCancelButton(prevCancelPayload)
+                +getCancelButton(prevCancelPayload, needNegativeIntent = true)
                 +getDoneButton(
                     Payload(
                         SaveAdvertState::class, SaveAdvertState(

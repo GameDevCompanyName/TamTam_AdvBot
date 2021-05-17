@@ -28,6 +28,10 @@ object LocalStorage {
         }
     }
 
+    fun deleteAdvert(user: User, advertId: Long) {
+        advertsMap[user]?.removeIf { it.id == advertId }
+    }
+
     fun getAds(user: User): Set<Advert> {
         return advertsMap[user] ?: setOf()
     }
