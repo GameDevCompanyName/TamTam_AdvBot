@@ -32,8 +32,7 @@ dependencies {
     implementation("gradle.plugin.org.flywaydb:gradle-plugin-publishing:7.8.1")
     implementation("postgresql:postgresql:9.1-901-1.jdbc4")
 
-    implementation("com.google.guava:guava:11.0.2")
-
+    implementation("com.google.code.gson:gson:2.8.6")
 }
 
 tasks.test {
@@ -51,4 +50,3 @@ flyway {
     user = "postgres"
     password = "postgres"
 }
-
