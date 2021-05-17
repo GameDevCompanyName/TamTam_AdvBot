@@ -53,6 +53,14 @@ fun createCancelKeyboard(payload: Payload): InlineKeyboard {
     }
 }
 
+fun createBackKeyboard(payload: Payload): InlineKeyboard {
+    return keyboard {
+        +buttonRow {
+            +getBackButton(payload)
+        }
+    }
+}
+
 fun getBackButton(payload: Payload): Button {
     return Button(
         ButtonType.CALLBACK,
