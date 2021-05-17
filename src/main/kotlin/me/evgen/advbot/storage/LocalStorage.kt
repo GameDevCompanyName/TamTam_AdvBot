@@ -21,6 +21,17 @@ object LocalStorage {
         }
     }
 
+    fun updateAdvert(user: User, advertId: Long, tempAdvert: TempAdvert) {
+        advertsMap[user]?.first { it.id == advertId }?.apply {
+            title = tempAdvert.title
+            text = tempAdvert.text
+        }
+    }
+
+    fun deleteAdvert(user: User, advertId: Long) {
+        advertsMap[user]?.removeIf { it.id == advertId }
+    }
+
     fun getAds(user: User): Set<Advert> {
         return advertsMap[user] ?: setOf()
     }
