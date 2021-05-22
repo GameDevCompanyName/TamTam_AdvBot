@@ -5,6 +5,7 @@ import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
+import chat.tamtam.botsdk.model.response.ChatType
 import com.google.gson.Gson
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
@@ -73,13 +74,29 @@ fun main() {
         messages {
             answerOnMessage { messageState ->
                 val currentState = BotController.getCurrentState(messageState.message.sender)
-                if (currentState == null || currentState !is MessageListener) { //TODO fix
-                    val result = SendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId
-                    when (result) {
-                        is ResultRequest.Success -> result.response
-                        is ResultRequest.Failure -> result.exception
+                if ((currentState == null || currentState !is MessageListener)) { //TODO fix
+                    when (messageState.message.recipient.chatType) {
+                        ChatType.DIALOG -> {
+                            when (val result =
+                                SendMessage("Для начала работы введите команду /start") sendFor messageState.message.recipient.chatId) {
+                                is ResultRequest.Success -> result.response
+                                is ResultRequest.Failure -> result.exception
+                            }
+                            return@answerOnMessage
+                        }
+                        ChatType.CHANNEL -> { //used for test purpose for now
+                            when (val result =
+                                SendMessage("Attachments: ${messageState.message.link}") sendFor messageState.message.recipient.chatId) {
+                                is ResultRequest.Success -> result.response
+                                is ResultRequest.Failure -> result.exception
+                            }
+                            return@answerOnMessage
+                        }
+                        else -> {
+                            return@answerOnMessage
+                        }
                     }
-                    return@answerOnMessage
+
                 }
                 currentState.onMessageReceived(messageState, requests)
 
