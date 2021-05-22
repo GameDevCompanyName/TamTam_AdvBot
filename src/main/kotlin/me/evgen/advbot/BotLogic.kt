@@ -22,7 +22,7 @@ fun main() {
 
         // when something added your bot to Chat, code below will start
         onAddBotToChat {
-            "Здарова бандиты" sendFor it.chatId
+            //Nothing
         }
 
         // when something removed your bot from Chat, code below will start
@@ -38,33 +38,6 @@ fun main() {
                     newState.handle(it, oldState, requests)
                 }
             }
-
-//            onCommand("/test") {
-//                "PASSWORD REQUIRED" sendFor it.command.message.sender.userId
-//                BotController.statesMap[it.command.message.sender] = States.TEST
-//
-//            }
-//
-//            onCommand("/close") {
-//                if (BotController.statesMap[it.command.message.sender] == States.ADMIN) {
-//                    BotController.statesMap[it.command.message.sender] = States.NORMAL
-//                    "Admin mode closed" sendFor it.command.message.sender.userId
-//                } else {
-//                    """I'm sorry, but I don't know this command, you can try /start
-//                    |if you don't remember all my available command.""".trimMargin() sendFor it.command.message.sender.userId
-//                }
-//            }
-//
-//            onCommand("/maps") {
-//                for (entry in BotController.tempAdMap) {
-//                    val (user, ad) = entry
-//                    """UserId: ${user.userId}
-//                            |UserName: ${user.name}
-//                            |Ad name: ${ad.title}
-//                            |Ad text: ${ad.text}
-//                        """.trimMargin() sendFor it.command.message.sender.userId
-//                }
-//            }
 
             onUnknownCommand {
                 """I'm sorry, but I don't know this command, you can try /start
@@ -95,9 +68,6 @@ fun main() {
             answerOnCallback(Payloads.WIP) {
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
             }
-//            answerOnCallback(Payloads.TEST) {
-//                "${it.message?.body?.attachments?.get(0)}" replaceCurrentMessage it.callback.callbackId
-//            }
         }
 
         messages {
@@ -113,13 +83,6 @@ fun main() {
                 }
                 currentState.onMessageReceived(messageState, requests)
 
-//                    States.TEST -> {
-//                        if (messageState.message.body.text == "admin") {
-//                            BotController.statesMap[messageState.message.sender] = States.ADMIN
-//                            "Welcome, master" sendFor messageState.message.sender.userId
-//                        } else BotController.statesMap[messageState.message.sender] = States.NORMAL
-//                    }
-//                }
             }
 
         }
