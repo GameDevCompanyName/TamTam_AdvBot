@@ -24,7 +24,7 @@ class TagSelectionState(timestamp: Long, private val chatId: Long) : BaseState(t
         """Настройка тегов для платформы:
             |${adPlatform.getChatTitle()}
             | 
-            |Для добавления тега нажмите на соответствующую кнопку.
+            |Чтобы добавить или удалить тег нажмите на соответствующую кнопку.
             | 
             |Список текущих тегов:
             |${adPlatform.getTagsString()}""".trimMargin().answerWithKeyboard(
@@ -34,6 +34,7 @@ class TagSelectionState(timestamp: Long, private val chatId: Long) : BaseState(t
         )
     }
 
+    //TODO: запилить структуру для тегов, чтобы не делать руками кнопку для каждого отдельно
     private fun createKeyboard(): InlineKeyboard {
         return keyboard {
             +buttonRow {
