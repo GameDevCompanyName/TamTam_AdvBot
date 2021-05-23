@@ -10,7 +10,8 @@ object LocalStorage {
     private val idGenerator = AtomicLong(0L)
 
     private val advertsMap: MutableMap<User, MutableSet<Advert>> = mutableMapOf()
-    private val chatsMap: MutableMap<User, MutableMap<ChatId, String>> = mutableMapOf()
+    private val chatNamesMap: MutableMap<ChatId, String> = mutableMapOf()
+    private val userChatsMap: MutableMap<User, MutableSet<ChatId>> = mutableMapOf()
 
     fun addAdvert(user: User, tempAdvert: TempAdvert) {
         if (advertsMap.containsKey(user)) {
@@ -23,22 +24,35 @@ object LocalStorage {
         }
     }
 
-    fun addChat(user: User, id: ChatId, name: String) {
-        if (chatsMap.containsKey(user)) {
-            chatsMap[user]!![id] = name
+    fun addChatName(id: ChatId, name: String) {
+        chatNamesMap[id] = name
+    }
+
+    fun getChatName(id: ChatId): String {
+        return if (chatNamesMap.containsKey(id)) {
+            chatNamesMap[id]!!
         } else {
-            val chatMap = mutableMapOf<ChatId, String>()
-            chatMap[id] = name
-            chatsMap[user] = chatMap
+            "Not found"
+        }
+    }
+
+    fun addChat(user: User, id: ChatId) {
+        if (userChatsMap.containsKey(user)) {
+            userChatsMap[user]!!.add(id)
+        } else {
+            val chatSet = mutableSetOf<ChatId>().apply {
+                add(id)
+            }
+            userChatsMap[user] = chatSet
         }
     }
 
     fun removeChat(user: User, id: ChatId) {
-        chatsMap[user]?.remove(id)
+        userChatsMap[user]?.removeIf { it.id == id.id }
     }
 
-    fun getChats(user: User): Map<ChatId, String> {
-        return chatsMap[user] ?: mapOf()
+    fun getChats(user: User): Set<ChatId> {
+        return userChatsMap[user] ?: setOf()
     }
 
     fun updateAdvert(user: User, advertId: Long, tempAdvert: TempAdvert) {

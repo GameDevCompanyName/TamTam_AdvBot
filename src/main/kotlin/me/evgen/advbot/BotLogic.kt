@@ -30,11 +30,12 @@ fun main() {
 
             when (val res = requests.getChat(it.chatId)) {
                 is ResultRequest.Success ->  {
-                    "Вы успешно добавили бота в ${res.response.title}" sendFor it.user.userId
-                    LocalStorage.addChat(it.user, it.chatId, res.response.title)
+                    val chatName = res.response.title
+                    "Вы успешно добавили бота в $chatName" sendFor it.user.userId
+                    LocalStorage.addChat(it.user, it.chatId)
+                    LocalStorage.addChatName(it.chatId, chatName)
                     for (entry in LocalStorage.getChats(it.user)) {
-                        """${entry.key}
-                        |${entry.value}""".trimMargin() sendFor it.user.userId
+                        LocalStorage.getChatName(entry) sendFor it.user.userId
                     }
                 }
                 is ResultRequest.Failure -> res.exception
@@ -43,17 +44,13 @@ fun main() {
 
         // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-            when (val res = requests.getChat(it.chatId)) {
-                is ResultRequest.Success ->  {
-                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
-                    LocalStorage.removeChat(it.user, it.chatId)
-                    for (entry in LocalStorage.getChats(it.user)) {
-                        """${entry.key}
-                        |${entry.value}""".trimMargin() sendFor it.user.userId
-                    }
-                }
-                is ResultRequest.Failure -> res.exception
-            }
+//            when (val res = requests.getChat(it.chatId)) {
+//                is ResultRequest.Success ->  {
+//                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
+//                    LocalStorage.removeChat(it.user, it.chatId)
+//                }
+//                is ResultRequest.Failure -> res.exception
+//            }
         }
 
         commands {
