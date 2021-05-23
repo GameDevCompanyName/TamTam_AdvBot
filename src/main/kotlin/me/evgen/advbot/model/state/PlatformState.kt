@@ -13,7 +13,7 @@ import me.evgen.advbot.storage.LocalStorage
 
 class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val chats = LocalStorage.getChats(callbackState.getUserId())
+        val chats = LocalStorage.getChatNames(callbackState.getUserId())
 
         //TODO: добавть вкл/выкл и теги
         val inlineKeyboard = createKeyboard(chats)
@@ -27,13 +27,13 @@ class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState
         )
     }
 
-    private fun createKeyboard(chatSet: Set<ChatId>): InlineKeyboard {
+    private fun createKeyboard(chatList: List<String>): InlineKeyboard {
         return keyboard {
-            for (entry in chatSet) {
+            for (entry in chatList) {
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
-                        LocalStorage.getChatName(entry),
+                        entry,
                         payload = Payloads.WIP
                     )
                 }

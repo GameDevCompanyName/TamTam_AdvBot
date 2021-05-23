@@ -34,10 +34,10 @@ fun main() {
                 is ResultRequest.Success ->  {
                     val chatName = res.response.title
                     "Вы успешно добавили бота в $chatName" sendFor it.user.userId
-                    LocalStorage.addChat(it.user.userId, it.chatId)
-                    LocalStorage.addChatName(it.chatId, chatName)
-                    for (entry in LocalStorage.getChats(it.user.userId)) {
-                        LocalStorage.getChatName(entry) sendFor it.user.userId
+                    LocalStorage.addChat(it.getUserId(), res.response)
+                    val names = LocalStorage.getChatNames(it.getUserId())
+                    for (entry in names) {
+                        entry sendFor it.getUserId()
                     }
                 }
                 is ResultRequest.Failure -> res.exception
@@ -46,16 +46,7 @@ fun main() {
 
         // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-            when (val res = requests.getChat(it.chatId)) {
-                is ResultRequest.Success ->  {
-                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
-                    LocalStorage.removeChat(it.user.userId, it.chatId)
-                }
-                is ResultRequest.Failure -> {
-                    res.exception
-                    "ti loh" sendFor it.user.userId
-                }
-            }
+            //TODO: оповещение об удалении бота из чата и удаление его из хранилища
         }
 
         commands {
@@ -120,9 +111,13 @@ fun main() {
 //                                is ResultRequest.Success -> result.response
 //                                is ResultRequest.Failure -> result.exception
 //                            }
-                            when(val res = messageState.message.body.attachments[0]) {
-                                is AttachmentPhoto -> res.payload.url sendFor messageState.message.recipient.chatId
+                            val attaches = messageState.message.body.attachments
+                            if (attaches.isNotEmpty()) {
+                                when(val attach = attaches[0]) {
+                                    is AttachmentPhoto -> attach.payload.url sendFor messageState.message.recipient.chatId
+                                }
                             }
+
                             return@answerOnMessage
                         }
                         else -> {

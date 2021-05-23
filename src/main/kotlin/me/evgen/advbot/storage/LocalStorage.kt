@@ -2,7 +2,9 @@ package me.evgen.advbot.storage
 
 import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.UserId
+import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.prepared.User
+import me.evgen.advbot.model.AdPlatform
 import me.evgen.advbot.model.Advert
 import me.evgen.advbot.model.TempAdvert
 import java.util.concurrent.atomic.AtomicLong
@@ -10,10 +12,8 @@ import java.util.concurrent.atomic.AtomicLong
 object LocalStorage {
     private val idGenerator = AtomicLong(0L)
 
-    //TODO: сделать мапу по Chat вместо ChatId
     private val advertsMap: MutableMap<User, MutableSet<Advert>> = mutableMapOf()
-    private val chatNamesMap: MutableMap<ChatId, String> = mutableMapOf()
-    private val userChatsMap: MutableMap<UserId , MutableSet<ChatId>> = mutableMapOf()
+    private val chatsMap: MutableMap<UserId, MutableSet<AdPlatform>> = mutableMapOf()
 
     fun addAdvert(user: User, tempAdvert: TempAdvert) {
         if (advertsMap.containsKey(user)) {
@@ -26,35 +26,35 @@ object LocalStorage {
         }
     }
 
-    fun addChatName(id: ChatId, name: String) {
-        chatNamesMap[id] = name
-    }
+    fun addChat(userId: UserId, chat: Chat) {
+        if (chatsMap.containsKey(userId)) {
+            chatsMap[userId]!!.add(createAdPlatformFromChat(chat))
 
-    fun getChatName(id: ChatId): String {
-        return if (chatNamesMap.containsKey(id)) {
-            chatNamesMap[id]!!
         } else {
-            "Not found"
-        }
-    }
-
-    fun addChat(userId: UserId, id: ChatId) {
-        if (userChatsMap.containsKey(userId)) {
-            userChatsMap[userId]!!.add(id)
-        } else {
-            val chatSet = mutableSetOf<ChatId>().apply {
-                add(id)
+            val chatSet = mutableSetOf<AdPlatform>().apply {
+                add(createAdPlatformFromChat(chat))
             }
-            userChatsMap[userId] = chatSet
+            chatsMap[userId] = chatSet
         }
     }
 
     fun removeChat(user: UserId, id: ChatId) {
-        userChatsMap[user]?.removeIf { it.id == id.id }
+        //TODO
     }
 
-    fun getChats(user: UserId): Set<ChatId> {
-        return userChatsMap[user] ?: setOf()
+    fun getChats(user: UserId): Set<Chat> {
+        //TODO
+        return emptySet()
+    }
+
+    fun getChatNames(userId: UserId): List<String> {
+        val names = mutableListOf<String>()
+        if (chatsMap.containsKey(userId)) {
+            for (entry in chatsMap[userId]!!) {
+                names.add(entry.getChatTitle())
+            }
+        }
+        return names
     }
 
     fun updateAdvert(user: User, advertId: Long, tempAdvert: TempAdvert) {
@@ -81,6 +81,13 @@ object LocalStorage {
             idGenerator.getAndIncrement(),
             tempAdvert.title,
             tempAdvert.text
+        )
+    }
+
+    private fun createAdPlatformFromChat(chat: Chat): AdPlatform {
+        return AdPlatform(
+            chat,
+            mutableSetOf()
         )
     }
 }
