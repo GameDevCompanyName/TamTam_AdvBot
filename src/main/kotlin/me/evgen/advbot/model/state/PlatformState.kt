@@ -7,17 +7,15 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.Payloads
-import me.evgen.advbot.createBackKeyboard
-import me.evgen.advbot.getBackButton
-import me.evgen.advbot.getUser
+import me.evgen.advbot.*
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.storage.LocalStorage
 
 class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val chats = LocalStorage.getChats(callbackState.getUser())
+        val chats = LocalStorage.getChats(callbackState.getUserId())
 
+        //TODO: добавть вкл/выкл и теги
         val inlineKeyboard = createKeyboard(chats)
 
         """Выберите платформу для настройки размещения.

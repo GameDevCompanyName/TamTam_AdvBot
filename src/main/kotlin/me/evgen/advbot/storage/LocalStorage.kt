@@ -1,6 +1,7 @@
 package me.evgen.advbot.storage
 
 import chat.tamtam.botsdk.model.ChatId
+import chat.tamtam.botsdk.model.UserId
 import chat.tamtam.botsdk.model.prepared.User
 import me.evgen.advbot.model.Advert
 import me.evgen.advbot.model.TempAdvert
@@ -9,9 +10,10 @@ import java.util.concurrent.atomic.AtomicLong
 object LocalStorage {
     private val idGenerator = AtomicLong(0L)
 
+    //TODO: сделать мапу по Chat вместо ChatId
     private val advertsMap: MutableMap<User, MutableSet<Advert>> = mutableMapOf()
     private val chatNamesMap: MutableMap<ChatId, String> = mutableMapOf()
-    private val userChatsMap: MutableMap<User, MutableSet<ChatId>> = mutableMapOf()
+    private val userChatsMap: MutableMap<UserId , MutableSet<ChatId>> = mutableMapOf()
 
     fun addAdvert(user: User, tempAdvert: TempAdvert) {
         if (advertsMap.containsKey(user)) {
@@ -36,22 +38,22 @@ object LocalStorage {
         }
     }
 
-    fun addChat(user: User, id: ChatId) {
-        if (userChatsMap.containsKey(user)) {
-            userChatsMap[user]!!.add(id)
+    fun addChat(userId: UserId, id: ChatId) {
+        if (userChatsMap.containsKey(userId)) {
+            userChatsMap[userId]!!.add(id)
         } else {
             val chatSet = mutableSetOf<ChatId>().apply {
                 add(id)
             }
-            userChatsMap[user] = chatSet
+            userChatsMap[userId] = chatSet
         }
     }
 
-    fun removeChat(user: User, id: ChatId) {
+    fun removeChat(user: UserId, id: ChatId) {
         userChatsMap[user]?.removeIf { it.id == id.id }
     }
 
-    fun getChats(user: User): Set<ChatId> {
+    fun getChats(user: UserId): Set<ChatId> {
         return userChatsMap[user] ?: setOf()
     }
 

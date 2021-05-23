@@ -4,7 +4,9 @@ import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
+import chat.tamtam.botsdk.model.prepared.AttachmentPhoto
 import chat.tamtam.botsdk.model.prepared.Bot
+import chat.tamtam.botsdk.model.prepared.cast
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
 import chat.tamtam.botsdk.model.response.ChatMember
@@ -32,9 +34,9 @@ fun main() {
                 is ResultRequest.Success ->  {
                     val chatName = res.response.title
                     "Вы успешно добавили бота в $chatName" sendFor it.user.userId
-                    LocalStorage.addChat(it.user, it.chatId)
+                    LocalStorage.addChat(it.user.userId, it.chatId)
                     LocalStorage.addChatName(it.chatId, chatName)
-                    for (entry in LocalStorage.getChats(it.user)) {
+                    for (entry in LocalStorage.getChats(it.user.userId)) {
                         LocalStorage.getChatName(entry) sendFor it.user.userId
                     }
                 }
@@ -44,13 +46,16 @@ fun main() {
 
         // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-//            when (val res = requests.getChat(it.chatId)) {
-//                is ResultRequest.Success ->  {
-//                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
-//                    LocalStorage.removeChat(it.user, it.chatId)
-//                }
-//                is ResultRequest.Failure -> res.exception
-//            }
+            when (val res = requests.getChat(it.chatId)) {
+                is ResultRequest.Success ->  {
+                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
+                    LocalStorage.removeChat(it.user.userId, it.chatId)
+                }
+                is ResultRequest.Failure -> {
+                    res.exception
+                    "ti loh" sendFor it.user.userId
+                }
+            }
         }
 
         commands {
@@ -109,15 +114,15 @@ fun main() {
                         ChatType.CHANNEL -> {
 //                            when (val result =
 //                                SendMessage(
-//                                    """${messageState.message.sender.name}
-//                                        |${messageState.message.sender.userId}
-//                                        |${messageState.message.recipient.userId}
+//                                    """${messageState.message.body.attachments[0]}
 //                                    """.trimMargin()
 //                                ) sendFor messageState.message.recipient.chatId) {
 //                                is ResultRequest.Success -> result.response
 //                                is ResultRequest.Failure -> result.exception
 //                            }
-
+                            when(val res = messageState.message.body.attachments[0]) {
+                                is AttachmentPhoto -> res.payload.url sendFor messageState.message.recipient.chatId
+                            }
                             return@answerOnMessage
                         }
                         else -> {
