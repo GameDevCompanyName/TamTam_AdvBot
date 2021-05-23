@@ -4,16 +4,16 @@ import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
-import chat.tamtam.botsdk.model.ChatId
+import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.*
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.storage.LocalStorage
 
-class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
+class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val chats = LocalStorage.getChatNames(callbackState.getUserId())
+        val chats = LocalStorage.getChats(callbackState.getUserId())
 
         //TODO: добавть вкл/выкл и теги
         val inlineKeyboard = createKeyboard(chats)
@@ -27,14 +27,17 @@ class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState
         )
     }
 
-    private fun createKeyboard(chatList: List<String>): InlineKeyboard {
+    private fun createKeyboard(chatSet: Set<Chat>): InlineKeyboard {
         return keyboard {
-            for (entry in chatList) {
+            for (entry in chatSet) {
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
-                        entry,
-                        payload = Payloads.WIP
+                        entry.title,
+                        payload = Payload(
+                            PlatformSettingsState::class,
+                            PlatformSettingsState(timestamp, entry.chatId.id).toJson()
+                        ).toJson()
                     )
                 }
             }

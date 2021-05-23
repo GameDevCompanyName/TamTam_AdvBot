@@ -42,9 +42,23 @@ object LocalStorage {
         //TODO
     }
 
-    fun getChats(user: UserId): Set<Chat> {
-        //TODO
-        return emptySet()
+    fun getChats(userId: UserId): Set<Chat> {
+        val chats = mutableSetOf<Chat>()
+        if (chatsMap.containsKey(userId)) {
+            for (entry in chatsMap[userId]!!) {
+                chats.add(entry.chat)
+            }
+        }
+        return chats
+    }
+
+    fun getPlatform(userId: UserId, chatId: Long): AdPlatform? {
+        return chatsMap[userId]?.find { it.chat.chatId.id == chatId }
+    }
+
+    fun getChatById(userId: UserId, chatId: Long): Chat? {
+        val adPlatform = chatsMap[userId]?.find { it.chat.chatId.id == chatId }
+        return adPlatform?.chat
     }
 
     fun getChatNames(userId: UserId): List<String> {
@@ -87,7 +101,8 @@ object LocalStorage {
     private fun createAdPlatformFromChat(chat: Chat): AdPlatform {
         return AdPlatform(
             chat,
-            mutableSetOf()
+            mutableSetOf(),
+            false
         )
     }
 }

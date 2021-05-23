@@ -35,10 +35,6 @@ fun main() {
                     val chatName = res.response.title
                     "Вы успешно добавили бота в $chatName" sendFor it.user.userId
                     LocalStorage.addChat(it.getUserId(), res.response)
-                    val names = LocalStorage.getChatNames(it.getUserId())
-                    for (entry in names) {
-                        entry sendFor it.getUserId()
-                    }
                 }
                 is ResultRequest.Failure -> res.exception
             }
