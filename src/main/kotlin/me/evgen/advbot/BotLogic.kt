@@ -1,10 +1,13 @@
 package me.evgen.advbot
 
+import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
+import chat.tamtam.botsdk.model.prepared.Bot
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
+import chat.tamtam.botsdk.model.response.ChatMember
 import chat.tamtam.botsdk.model.response.ChatType
 import com.google.gson.Gson
 import me.evgen.advbot.model.navigation.Payload
@@ -12,6 +15,7 @@ import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.model.state.MessageListener
 import me.evgen.advbot.model.state.StartState
+import me.evgen.advbot.storage.LocalStorage
 import java.lang.Exception
 
 fun main() {
@@ -23,12 +27,33 @@ fun main() {
 
         // when something added your bot to Chat, code below will start
         onAddBotToChat {
-            //Nothing
+
+            when (val res = requests.getChat(it.chatId)) {
+                is ResultRequest.Success ->  {
+                    "Вы успешно добавили бота в ${res.response.title}" sendFor it.user.userId
+                    LocalStorage.addChat(it.user, it.chatId, res.response.title)
+                    for (entry in LocalStorage.getChats(it.user)) {
+                        """${entry.key}
+                        |${entry.value}""".trimMargin() sendFor it.user.userId
+                    }
+                }
+                is ResultRequest.Failure -> res.exception
+            }
         }
 
         // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-            //Nothing
+            when (val res = requests.getChat(it.chatId)) {
+                is ResultRequest.Success ->  {
+                    "Вы успешно удалили бота из ${res.response.title}" sendFor it.user.userId
+                    LocalStorage.removeChat(it.user, it.chatId)
+                    for (entry in LocalStorage.getChats(it.user)) {
+                        """${entry.key}
+                        |${entry.value}""".trimMargin() sendFor it.user.userId
+                    }
+                }
+                is ResultRequest.Failure -> res.exception
+            }
         }
 
         commands {
@@ -84,12 +109,18 @@ fun main() {
                             }
                             return@answerOnMessage
                         }
-                        ChatType.CHANNEL -> { //used for test purpose for now
-                            when (val result =
-                                SendMessage("Attachments: ${messageState.message.link}") sendFor messageState.message.recipient.chatId) {
-                                is ResultRequest.Success -> result.response
-                                is ResultRequest.Failure -> result.exception
-                            }
+                        ChatType.CHANNEL -> {
+//                            when (val result =
+//                                SendMessage(
+//                                    """${messageState.message.sender.name}
+//                                        |${messageState.message.sender.userId}
+//                                        |${messageState.message.recipient.userId}
+//                                    """.trimMargin()
+//                                ) sendFor messageState.message.recipient.chatId) {
+//                                is ResultRequest.Success -> result.response
+//                                is ResultRequest.Failure -> result.exception
+//                            }
+
                             return@answerOnMessage
                         }
                         else -> {

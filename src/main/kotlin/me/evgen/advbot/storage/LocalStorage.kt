@@ -1,5 +1,6 @@
 package me.evgen.advbot.storage
 
+import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.prepared.User
 import me.evgen.advbot.model.Advert
 import me.evgen.advbot.model.TempAdvert
@@ -9,6 +10,7 @@ object LocalStorage {
     private val idGenerator = AtomicLong(0L)
 
     private val advertsMap: MutableMap<User, MutableSet<Advert>> = mutableMapOf()
+    private val chatsMap: MutableMap<User, MutableMap<ChatId, String>> = mutableMapOf()
 
     fun addAdvert(user: User, tempAdvert: TempAdvert) {
         if (advertsMap.containsKey(user)) {
@@ -19,6 +21,24 @@ object LocalStorage {
             }
             advertsMap[user] = advertSet
         }
+    }
+
+    fun addChat(user: User, id: ChatId, name: String) {
+        if (chatsMap.containsKey(user)) {
+            chatsMap[user]!![id] = name
+        } else {
+            val chatMap = mutableMapOf<ChatId, String>()
+            chatMap[id] = name
+            chatsMap[user] = chatMap
+        }
+    }
+
+    fun removeChat(user: User, id: ChatId) {
+        chatsMap[user]?.remove(id)
+    }
+
+    fun getChats(user: User): Map<ChatId, String> {
+        return chatsMap[user] ?: mapOf()
     }
 
     fun updateAdvert(user: User, advertId: Long, tempAdvert: TempAdvert) {

@@ -1,18 +1,52 @@
 package me.evgen.advbot.model.state
 
 import chat.tamtam.botsdk.client.RequestsManager
+import chat.tamtam.botsdk.keyboard.keyboard
+import chat.tamtam.botsdk.model.Button
+import chat.tamtam.botsdk.model.ButtonType
+import chat.tamtam.botsdk.model.ChatId
+import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
+import me.evgen.advbot.Payloads
 import me.evgen.advbot.createBackKeyboard
+import me.evgen.advbot.getBackButton
+import me.evgen.advbot.getUser
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.storage.LocalStorage
 
 class PlatformState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        "Выбирите платформу, которую хотите предоставить для размещения рекламы:".answerWithKeyboard(
+        val chats = LocalStorage.getChats(callbackState.getUser())
+        val inlineKeyboard = createKeyboard(chats)
+        """Выберите платформу для настройки размещения.
+            |Для того, чтобы платформа появилась в списке, добавьте бота @AdvertizerBot в свой чат или канал.
+        """.trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
-            createBackKeyboard(
-                Payload(StartState::class, StartState(timestamp).toJson())
-            ),
+            inlineKeyboard,
             requestsManager
         )
+    }
+
+    private fun createKeyboard(chatMap: Map<ChatId, String>): InlineKeyboard {
+        return keyboard {
+            for (entry in chatMap) {
+                +buttonRow {
+                    +Button(
+                        ButtonType.CALLBACK,
+                        entry.value,
+                        payload = Payloads.WIP
+                    )
+                }
+            }
+            +buttonRow {
+                +getBackButton(
+                    Payload(
+                        StartState::class, StartState(
+                            timestamp
+                        ).toJson()
+                    )
+                )
+            }
+        }
     }
 }
