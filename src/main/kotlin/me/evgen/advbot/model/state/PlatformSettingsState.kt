@@ -21,12 +21,13 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
         }
 
         """Настройка платформы:
-            | ${adPlatform.getChatTitle()}
-            | Текущие теги:
-            | ${adPlatform.getTagsString()}
-            | Текущие параметры доступа к рекламе:
-            | ${adPlatform.getAvailability()}
-            | """.trimMargin().answerWithKeyboard(
+            |${adPlatform.getChatTitle()}
+            |
+            |Текущие теги:
+            |${adPlatform.getTagsString()}
+            |Текущие параметры доступа к рекламе:
+            |${adPlatform.getAvailability()}
+            |""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
             createKeyboard(),
             requestsManager

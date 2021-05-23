@@ -9,6 +9,7 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.Tags
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.storage.LocalStorage
 
@@ -21,12 +22,12 @@ class TagSelectionState(timestamp: Long, private val chatId: Long) : BaseState(t
         }
 
         """Настройка тегов для платформы:
-            | ${adPlatform.getChatTitle()}
+            |${adPlatform.getChatTitle()}
             | 
-            | Для добавления тега нажмите на соответствующую кнопку.
+            |Для добавления тега нажмите на соответствующую кнопку.
             | 
-            | Список текущих тегов:
-            | ${adPlatform.getTagsString()}""".trimMargin().answerWithKeyboard(
+            |Список текущих тегов:
+            |${adPlatform.getTagsString()}""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
             createKeyboard(),
             requestsManager
@@ -39,14 +40,84 @@ class TagSelectionState(timestamp: Long, private val chatId: Long) : BaseState(t
                 +Button(
                     ButtonType.CALLBACK,
                     "Спорт",
-                    payload = Payloads.WIP
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.SPORTS
+                        ).toJson()
+                    ).toJson()
+                )
+            }
+            +buttonRow {
+                +Button(
+                    ButtonType.CALLBACK,
+                    "Новости",
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.NEWS
+                        ).toJson()
+                    ).toJson()
                 )
             }
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
                     "Игры",
-                    payload = Payloads.WIP
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.GAMES
+                        ).toJson()
+                    ).toJson()
+                )
+            }
+            +buttonRow {
+                +Button(
+                    ButtonType.CALLBACK,
+                    "Политика",
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.POLITICS
+                        ).toJson()
+                    ).toJson()
+                )
+            }
+            +buttonRow {
+                +Button(
+                    ButtonType.CALLBACK,
+                    "Технологии",
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.TECH
+                        ).toJson()
+                    ).toJson()
+                )
+            }
+            +buttonRow {
+                +Button(
+                    ButtonType.CALLBACK,
+                    "Экономика",
+                    payload = Payload(
+                        TagSwitchPlatformState::class,
+                        TagSwitchPlatformState(
+                            timestamp,
+                            chatId,
+                            Tags.ECONOMICS
+                        ).toJson()
+                    ).toJson()
                 )
             }
             +buttonRow {

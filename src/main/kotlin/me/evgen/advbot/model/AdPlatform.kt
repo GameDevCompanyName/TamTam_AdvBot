@@ -13,16 +13,12 @@ data class AdPlatform(val chat: Chat, var tags: MutableSet<String>, var availabi
         return chat.chatId
     }
 
-    fun addTag(tag: String) {
-        tags.add(tag)
-    }
-
     fun getTagsString(): String {
-        val tagString = ""
-        for (entry in tags) {
-            tagString + entry + "\n"
+        return buildString {
+            for (entry in tags) {
+                append("$entry\n")
+            }
         }
-        return tagString
     }
 
     fun getAvailability(): String {

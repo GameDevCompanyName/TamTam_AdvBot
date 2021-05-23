@@ -90,6 +90,14 @@ object LocalStorage {
         return advertsMap[user]?.find { it.id == adId }
     }
 
+    fun tagSwitchPlatform(userId: UserId, adPlatform: AdPlatform, tag: String) {
+        chatsMap[userId]?.first { it.getChatId() == adPlatform.getChatId() }?.apply {
+            if (!tags.contains(tag)) {
+                tags.add(tag)
+            } else tags.remove(tag)
+        }
+    }
+
     private fun createAdvertFromTemp(tempAdvert: TempAdvert): Advert {
         return Advert(
             idGenerator.getAndIncrement(),
