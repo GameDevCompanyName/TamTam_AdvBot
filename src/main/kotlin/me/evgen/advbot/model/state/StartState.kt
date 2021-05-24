@@ -43,8 +43,8 @@ class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, C
                     ButtonType.CALLBACK,
                     "Предоставить площадку",
                     payload = Payload(
-                        PlatformState::class,
-                        PlatformState(this@StartState.timestamp)
+                        PlatformListState::class,
+                        PlatformListState(this@StartState.timestamp)
                             .toJson()
                     ).toJson()
                 )

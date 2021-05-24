@@ -7,14 +7,14 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
-import me.evgen.advbot.getUser
-import me.evgen.advbot.model.Advert
+import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.storage.LocalStorage
+import me.evgen.advbot.service.UserService
 
 class AdvListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val ads = LocalStorage.getAds(callbackState.getUser())
+        val ads = UserService.findUser(callbackState.getUserId().id)?.advertList ?: listOf()
 
         val inlineKeyboard = createKeyboard(ads)
 
@@ -25,7 +25,7 @@ class AdvListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState 
         }
     }
 
-    private fun createKeyboard(advSet: Set<Advert>): InlineKeyboard {
+    private fun createKeyboard(advSet: Collection<Advert>): InlineKeyboard {
         return keyboard {
             for (entry in advSet) {
                 +buttonRow {

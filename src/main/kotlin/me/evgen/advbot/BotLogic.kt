@@ -3,39 +3,48 @@ package me.evgen.advbot
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
+import chat.tamtam.botsdk.model.prepared.AttachmentPhoto
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
 import chat.tamtam.botsdk.model.response.ChatType
 import com.google.gson.Gson
+import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.model.state.MessageListener
 import me.evgen.advbot.model.state.StartState
+import me.evgen.advbot.model.state.WelcomeState
+import me.evgen.advbot.service.UserService
 import java.lang.Exception
 
 fun main() {
     longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
-        // when User start your bot, code below will start
+
         onStartBot {
-            initialText(it.user.name) sendFor it.user.userId
+            WelcomeState(System.currentTimeMillis()).handle(it, requests)
         }
 
-        // when something added your bot to Chat, code below will start
         onAddBotToChat {
-            //Nothing
+            when (val res = requests.getChat(it.chatId)) {
+                is ResultRequest.Success ->  {
+                    val chatName = res.response.title
+                    "Вы успешно добавили бота в $chatName" sendFor it.user.userId
+                    DBSessionFactoryUtil.localStorage.addChat(it.getUserId(), res.response)
+                }
+                is ResultRequest.Failure -> res.exception
+            }
         }
 
-        // when something removed your bot from Chat, code below will start
         onRemoveBotFromChat {
-            //Nothing
+            //TODO: оповещение об удалении бота из чата и удаление его из хранилища
         }
 
         commands {
 
             onCommand("/start") {
                 val newState = StartState(System.currentTimeMillis())
-                BotController.moveTo(newState, it.command.message.sender, isForce = true) { oldState ->
+                BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
                     newState.handle(it, oldState, requests)
                 }
             }
@@ -56,7 +65,7 @@ fun main() {
                     val payload = gson.fromJson(it.callback.payload, Payload::class.java)
                     val newState = gson.fromJson(payload.jsonState, Class.forName(payload.className)) as BaseState
 
-                    BotController.moveTo(newState, it.callback.user) { oldState ->
+                    BotController.moveTo(newState, it.getUserId().id) { oldState ->
                         if (newState is CustomCallbackState) {
                             newState.handle(it, oldState, requests)
                         }
@@ -73,7 +82,7 @@ fun main() {
 
         messages {
             answerOnMessage { messageState ->
-                val currentState = BotController.getCurrentState(messageState.message.sender)
+                val currentState = UserService.getCurrentState(messageState.getUserId().id)
                 if ((currentState == null || currentState !is MessageListener)) { //TODO fix
                     when (messageState.message.recipient.chatType) {
                         ChatType.DIALOG -> {
@@ -84,12 +93,22 @@ fun main() {
                             }
                             return@answerOnMessage
                         }
-                        ChatType.CHANNEL -> { //used for test purpose for now
-                            when (val result =
-                                SendMessage("Attachments: ${messageState.message.link}") sendFor messageState.message.recipient.chatId) {
-                                is ResultRequest.Success -> result.response
-                                is ResultRequest.Failure -> result.exception
+                        ChatType.CHANNEL -> {
+//                            when (val result =
+//                                SendMessage(
+//                                    """${messageState.message.body.attachments[0]}
+//                                    """.trimMargin()
+//                                ) sendFor messageState.message.recipient.chatId) {
+//                                is ResultRequest.Success -> result.response
+//                                is ResultRequest.Failure -> result.exception
+//                            }
+                            val attaches = messageState.message.body.attachments
+                            if (attaches.isNotEmpty()) {
+                                when(val attach = attaches[0]) {
+                                    is AttachmentPhoto -> attach.payload.url sendFor messageState.message.recipient.chatId
+                                }
                             }
+
                             return@answerOnMessage
                         }
                         else -> {
@@ -99,10 +118,7 @@ fun main() {
 
                 }
                 currentState.onMessageReceived(messageState, requests)
-
             }
-
         }
-
     }
 }
