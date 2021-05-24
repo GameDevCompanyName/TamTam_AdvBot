@@ -6,8 +6,12 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
 import me.evgen.advbot.BotController
+import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getCancelButton
-import me.evgen.advbot.model.TempAdvert
+import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.entity.TempAdvert
+import me.evgen.advbot.service.AdvertService
+import me.evgen.advbot.service.UserService
 
 class AdvCreateState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, MessageListener {
 
@@ -20,13 +24,17 @@ class AdvCreateState(timestamp: Long) : BaseState(timestamp), CustomCallbackStat
     }
 
     override suspend fun onMessageReceived(messageState: MessageState, requestsManager: RequestsManager) {
-        val tempAdvert = TempAdvert().apply {
-            title = messageState.message.body.text
-        }
-        BotController.tempAdMap[messageState.message.sender] = tempAdvert
+        val user = UserService.findUser(messageState.getUserId().id) ?: return
+        val tempAdvert = TempAdvert(
+            DBSessionFactoryUtil.localStorage.getNextId(),
+            messageState.message.body.text,
+            "",
+            user
+        )
+        AdvertService.addTempAdvert(tempAdvert)
 
-        val newState = AdvConstructorState(timestamp, null)
-        BotController.moveTo(newState, messageState.message.sender) {
+        val newState = AdvConstructorState(timestamp, tempAdvert.id, isCreatingAdvert = true)
+        BotController.moveTo(newState, messageState.getUserId().id) {
             newState.handle(messageState, requestsManager)
         }
     }

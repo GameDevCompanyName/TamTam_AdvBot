@@ -7,18 +7,16 @@ import chat.tamtam.botsdk.model.ButtonIntent
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import com.vladsch.kotlin.jdbc.integralValue
-import me.evgen.advbot.Payloads
+import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.AdPlatform
 import me.evgen.advbot.model.Tags
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.storage.LocalStorage
 
 class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = LocalStorage.getPlatform(callbackState.getUserId(), chatId)
+        val adPlatform = DBSessionFactoryUtil.localStorage.getPlatform(callbackState.getUserId(), chatId)
         if (adPlatform == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return

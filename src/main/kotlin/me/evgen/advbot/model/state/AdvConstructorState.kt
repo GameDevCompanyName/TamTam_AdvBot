@@ -7,26 +7,28 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
-import me.evgen.advbot.BotController
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.getCancelButton
 import me.evgen.advbot.getDoneButton
-import me.evgen.advbot.getUser
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.entity.TempAdvert
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.model.TempAdvert
-import me.evgen.advbot.storage.LocalStorage
+import me.evgen.advbot.service.AdvertService
 
-class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseState(timestamp), CustomCallbackState, CustomMessageState {
+class AdvConstructorState(
+    timestamp: Long,
+    private val advertId: Long,
+    private val isCreatingAdvert: Boolean
+) : BaseState(timestamp), CustomCallbackState, CustomMessageState {
 
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
         var message = "ОШИБКА"
 
-        if (advertId != null) {
-            val advert = LocalStorage.getAd(callbackState.callback.user, advertId)
+        if (!isCreatingAdvert) {
+            val advert = AdvertService.findAdvert(advertId)
             if (advert != null) {
                 val tempAdvert = TempAdvert(advert)
-                BotController.tempAdMap[callbackState.getUser()] = tempAdvert
+                AdvertService.addTempAdvert(tempAdvert)
                 message = createMessage(tempAdvert.title, tempAdvert.text)
             }
         }
@@ -34,16 +36,13 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
         message.answerWithKeyboard(callbackState.callback.callbackId, createKeyboard(), requestsManager)
     }
 
-    override suspend fun handle(
-        messageState: MessageState,
-        requestsManager: RequestsManager
-    ) {
-        val tempAdvert = BotController.tempAdMap[messageState.message.sender]
+    override suspend fun handle(messageState: MessageState, requestsManager: RequestsManager) {
+        val tempAdvert = AdvertService.findTempAdvertByUserId(messageState.getUserId().id)
         val message = if (tempAdvert != null) {
             createMessage(tempAdvert.title, tempAdvert.text)
         } else {
             "ОШИБКА"
-            }
+        }
 
         message.sendToUserWithKeyboard(messageState.getUserId(), createKeyboard(), requestsManager)
     }
@@ -56,7 +55,7 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
                     "Настройка названия ✏",
                     payload = Payload(
                         AdvTitlingState::class,
-                        AdvTitlingState(timestamp, advertId).toJson()
+                        AdvTitlingState(timestamp, advertId, isCreatingAdvert).toJson()
                     ).toJson()
                 )
             }
@@ -66,7 +65,7 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
                     "Настройка текста 📃",
                     payload = Payload(
                         AdvTextingState::class,
-                        AdvTextingState(timestamp, advertId).toJson()
+                        AdvTextingState(timestamp, advertId, isCreatingAdvert).toJson()
                     ).toJson()
                 )
             }
@@ -86,7 +85,7 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
             }
 
             +buttonRow {
-                val prevCancelPayload = if (advertId == null) {
+                val prevCancelPayload = if (isCreatingAdvert) {
                     Payload(
                         MenuAdvertState::class, MenuAdvertState(
                             timestamp
@@ -105,7 +104,8 @@ class AdvConstructorState(timestamp: Long, private val advertId: Long?) : BaseSt
                     Payload(
                         SaveAdvertState::class, SaveAdvertState(
                             timestamp,
-                            advertId
+                            advertId,
+                            isCreatingAdvert
                         ).toJson()
                     )
                 )

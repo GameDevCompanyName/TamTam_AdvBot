@@ -9,14 +9,13 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.getBackButton
-import me.evgen.advbot.getUser
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.storage.LocalStorage
+import me.evgen.advbot.service.AdvertService
 
 class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val advert = LocalStorage.getAd(callbackState.getUser(), advertId)
+        val advert = AdvertService.findAdvert(advertId)
         if (advert == null) {
             "Ошибка! Нет такой рекламы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return
@@ -38,7 +37,7 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     "Настроить рекламу ⚙",
                     payload = Payload(
                         AdvConstructorState::class,
-                        AdvConstructorState(timestamp, advertId).toJson()
+                        AdvConstructorState(timestamp, advertId, isCreatingAdvert = false).toJson()
                     ).toJson()
                 )
             }

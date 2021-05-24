@@ -7,13 +7,15 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.*
+import me.evgen.advbot.Payloads
+import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.storage.LocalStorage
+import me.evgen.advbot.getBackButton
+import me.evgen.advbot.getUserId
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val chats = LocalStorage.getChats(callbackState.getUserId())
+        val chats = DBSessionFactoryUtil.localStorage.getChats(callbackState.getUserId())
 
         //TODO: добавть вкл/выкл и теги
         val inlineKeyboard = createKeyboard(chats)

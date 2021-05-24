@@ -17,7 +17,6 @@ import chat.tamtam.botsdk.state.RemovedUserState
 import chat.tamtam.botsdk.state.StartedBotState
 import chat.tamtam.botsdk.state.UpdateState
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.model.TempAdvert
 
 fun UpdateState.getUserId(): UserId {
     return when (this) {
