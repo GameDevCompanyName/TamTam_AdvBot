@@ -3,12 +3,15 @@ package me.evgen.advbot.model.state
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
+import chat.tamtam.botsdk.model.ButtonIntent
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
+import com.vladsch.kotlin.jdbc.integralValue
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.AdPlatform
 import me.evgen.advbot.model.Tags
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.storage.LocalStorage
@@ -25,22 +28,26 @@ class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : Bas
             |${adPlatform.getChatTitle()}
             | 
             |Чтобы добавить или удалить тег нажмите на соответствующую кнопку.
-            | 
-            |Список текущих тегов:
-            |${adPlatform.getTagsString()}""".trimMargin().answerWithKeyboard(
+            |""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
-            createKeyboard(),
+            createKeyboard(adPlatform),
             requestsManager
         )
     }
 
-    private fun createKeyboard(): InlineKeyboard {
+    private fun createKeyboard(adPlatform: AdPlatform): InlineKeyboard {
         return keyboard {
             for (entry in Tags.getAllTags()) {
+
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
                         entry,
+                        if (adPlatform.tags.contains(entry)) {
+                            ButtonIntent.POSITIVE
+                        } else {
+                            ButtonIntent.DEFAULT
+                        },
                         payload = Payload(
                             TagSwitchPlatformState::class,
                             TagSwitchPlatformState(
@@ -49,6 +56,7 @@ class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : Bas
                                 entry
                             ).toJson()
                         ).toJson()
+
                     )
                 }
             }
