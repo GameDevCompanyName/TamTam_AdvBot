@@ -3,6 +3,7 @@ package me.evgen.advbot
 import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.communications.LongPollingStartingParams
 import chat.tamtam.botsdk.communications.longPolling
+import chat.tamtam.botsdk.model.prepared.AttachmentPhoto
 import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
 import chat.tamtam.botsdk.model.response.ChatType
@@ -29,7 +30,7 @@ fun main() {
                 is ResultRequest.Success ->  {
                     val chatName = res.response.title
                     "Вы успешно добавили бота в $chatName" sendFor it.user.userId
-                    LocalStorage.addChat(it.getUserId(), res.response)
+                    DBSessionFactoryUtil.localStorage.addChat(it.getUserId(), res.response)
                 }
                 is ResultRequest.Failure -> res.exception
             }
