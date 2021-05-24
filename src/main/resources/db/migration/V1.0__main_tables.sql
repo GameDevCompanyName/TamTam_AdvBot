@@ -1,29 +1,27 @@
 create table users
 (
-    id bigint primary key
+    id bigint primary key,
+    payload text not null
 );
 
-create table advertisement
+create table advert
 (
     id              bigserial primary key,
-    name            text not null,
-    description     text,
-    link            text,
-    file_data       bytea,
-    created_user_id bigint references users (id),
-    enabled         boolean
+    title           text not null,
+    text            text,
+    users_id        bigint not null references users (id)
 );
-create index advertisement_user_id_idx on advertisement (created_user_id);
+create index advert_user_id_idx on advert (users_id);
 
-create table user_group
-(
-    id bigint primary key
-);
-
-create table user_group_advertisement
-(
-    advertisement_id bigint references advertisement (id),
-    user_group_id bigint references user_group (id)
-);
-create index user_group_advertisement_advertisement_id on user_group_advertisement(advertisement_id);
-create index user_group_advertisement_user_group_id on user_group_advertisement(user_group_id);
+--create table user_group
+--(
+--    id bigint primary key
+--);
+--
+--create table user_group_advertisement
+--(
+--    advertisement_id bigint references advertisement (id),
+--    user_group_id bigint references user_group (id)
+--);
+--create index user_group_advertisement_advertisement_id on user_group_advertisement(advertisement_id);
+--create index user_group_advertisement_user_group_id on user_group_advertisement(user_group_id);

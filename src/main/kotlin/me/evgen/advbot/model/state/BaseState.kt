@@ -12,12 +12,16 @@ import chat.tamtam.botsdk.model.request.SendMessage
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
 import chat.tamtam.botsdk.state.MessageState
+import chat.tamtam.botsdk.state.StartedBotState
 import com.google.gson.Gson
-import me.evgen.advbot.BotController
+import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.service.AdvertService
 
 abstract class BaseState(var timestamp: Long) {
 
+    // Если тебе вдруг понадобился этот метод, то сначала подумой и узнай у Алексея Корнеева че делать.
+    // А вообщего его нужно удалить, но мне лень)
     fun getOrDefaultPayload(state: BaseState?): Payload {
         return if (state == null) {
             Payload(
@@ -30,6 +34,13 @@ abstract class BaseState(var timestamp: Long) {
                 state.apply { timestamp = this@BaseState.timestamp }.toJson()
             )
         }
+    }
+
+    fun toPayload(): Payload {
+        return Payload(
+            this::class,
+            toJson()
+        )
     }
 
     fun toJson(): String {
@@ -62,7 +73,7 @@ abstract class BaseState(var timestamp: Long) {
 
 interface CustomCommandState {
     suspend fun handle(commandState: CommandState, prevState: BaseState, requestsManager: RequestsManager) {
-        BotController.tempAdMap.remove(commandState.command.message.sender)
+        AdvertService.deleteTempAdvertByUserId(commandState.getUserId().id)
     }
 }
 
@@ -75,6 +86,10 @@ interface CustomMessageState {
         messageState: MessageState,
         requestsManager: RequestsManager
     )
+}
+
+interface CustomStartedBotState {
+    suspend fun handle(startedBotState: StartedBotState, requestsManager: RequestsManager)
 }
 
 interface MessageListener {
