@@ -20,7 +20,7 @@ class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, val tag:
         "Тег успешно изменен".answerNotification(
             callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
 
-        val newState = TagSelectionState(timestamp, chatId)
+        val newState = TagSelectionPlatformState(timestamp, chatId)
         BotController.moveTo(newState, callbackState.getUser()) {
             newState.handle(callbackState, prevState, requestsManager)
         }

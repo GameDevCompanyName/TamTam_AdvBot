@@ -6,12 +6,14 @@ import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
+import me.evgen.advbot.Payloads
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.Tags
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.storage.LocalStorage
 
-class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
+class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
         val adPlatform = LocalStorage.getPlatform(callbackState.getUserId(), chatId)
         if (adPlatform == null) {
@@ -19,14 +21,13 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
             return
         }
 
-        """Настройка платформы:
+        """Настройка тегов для платформы:
             |${adPlatform.getChatTitle()}
-            |
-            |Текущие теги:
-            |${adPlatform.getTagsString()}
-            |Текущие параметры доступа к рекламе:
-            |${adPlatform.getAvailability()}
-            |""".trimMargin().answerWithKeyboard(
+            | 
+            |Чтобы добавить или удалить тег нажмите на соответствующую кнопку.
+            | 
+            |Список текущих тегов:
+            |${adPlatform.getTagsString()}""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
             createKeyboard(),
             requestsManager
@@ -35,31 +36,28 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
 
     private fun createKeyboard(): InlineKeyboard {
         return keyboard {
-            +buttonRow {
-                +Button(
-                    ButtonType.CALLBACK,
-                    "Настройка тегов 🏷",
-                    payload = Payload(
-                        TagSelectionPlatformState::class,
-                        TagSelectionPlatformState(timestamp, chatId).toJson()
-                    ).toJson()
-                )
-            }
-            +buttonRow {
-                +Button(
-                    ButtonType.CALLBACK,
-                    "Настройка доступа 🔒",
-                    payload = Payload(
-                        PlatformAccessSettingsState::class,
-                        PlatformAccessSettingsState(timestamp, chatId).toJson()
-                    ).toJson()
-                )
+            for (entry in Tags.getAllTags()) {
+                +buttonRow {
+                    +Button(
+                        ButtonType.CALLBACK,
+                        entry,
+                        payload = Payload(
+                            TagSwitchPlatformState::class,
+                            TagSwitchPlatformState(
+                                timestamp,
+                                chatId,
+                                entry
+                            ).toJson()
+                        ).toJson()
+                    )
+                }
             }
             +buttonRow {
                 +getBackButton(
                     Payload(
-                        PlatformListState::class, PlatformListState(
-                            timestamp
+                        PlatformSettingsState::class, PlatformSettingsState(
+                            timestamp,
+                            chatId
                         ).toJson()
                     )
                 )
