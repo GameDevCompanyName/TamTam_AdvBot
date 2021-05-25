@@ -2,16 +2,17 @@ package me.evgen.advbot.db.local
 
 import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.UserId
-import chat.tamtam.botsdk.model.prepared.Chat
 import me.evgen.advbot.model.AdPlatform
+import me.evgen.advbot.model.IPlatform
 import me.evgen.advbot.model.entity.TempAdvert
+import me.evgen.advbot.model.entity.User
 import java.util.concurrent.atomic.AtomicLong
 
 class LocalStorage {
     private val idGenerator = AtomicLong(0L)
     private val tempAdvertsByUserId = mutableMapOf<Long, TempAdvert>()
 
-    private val chatsMap: MutableMap<UserId, MutableSet<AdPlatform>> = mutableMapOf()
+    private val chatsMap: MutableMap<Long, MutableSet<IPlatform>> = mutableMapOf()
 
     fun getNextId(): Long = idGenerator.getAndIncrement()
 
@@ -31,15 +32,15 @@ class LocalStorage {
         tempAdvertsByUserId.remove(userId)
     }
 
-    fun addChat(userId: UserId, chat: Chat) {
-        if (chatsMap.containsKey(userId)) {
-            chatsMap[userId]!!.add(createAdPlatformFromChat(chat))
+    fun addChat(platform: IPlatform) {
+        if (chatsMap.containsKey(platform.user.id)) {
+            chatsMap[platform.user.id]!!.add(platform)
 
         } else {
-            val chatSet = mutableSetOf<AdPlatform>().apply {
-                add(createAdPlatformFromChat(chat))
+            val chatSet = mutableSetOf<IPlatform>().apply {
+                add(platform)
             }
-            chatsMap[userId] = chatSet
+            chatsMap[platform.user.id] = chatSet
         }
     }
 
@@ -47,33 +48,19 @@ class LocalStorage {
         //TODO
     }
 
-    fun getChats(userId: UserId): Set<Chat> {
-        val chats = mutableSetOf<Chat>()
+    fun getPlatforms(userId: Long): Set<IPlatform> {
+        val chats = mutableSetOf<IPlatform>()
         if (chatsMap.containsKey(userId)) {
             for (entry in chatsMap[userId]!!) {
-                chats.add(entry.chat)
+                chats.add(entry)
             }
         }
         return chats
     }
 
-    fun getPlatform(userId: UserId, chatId: Long): AdPlatform? {
-        return chatsMap[userId]?.find { it.chat.chatId.id == chatId }
+    fun getPlatform(userId: Long, chatId: Long): IPlatform? {
+        return chatsMap[userId]?.find { it.id == chatId }
     }
 
-    fun tagSwitchPlatform(userId: UserId, adPlatform: AdPlatform, tag: String) {
-        chatsMap[userId]?.first { it.getChatId() == adPlatform.getChatId() }?.apply {
-            if (!tags.contains(tag)) {
-                tags.add(tag)
-            } else tags.remove(tag)
-        }
-    }
 
-    private fun createAdPlatformFromChat(chat: Chat): AdPlatform {
-        return AdPlatform(
-            chat,
-            mutableSetOf(),
-            false
-        )
-    }
 }

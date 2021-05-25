@@ -8,15 +8,10 @@ import chat.tamtam.botsdk.model.request.AnswerParams
 import chat.tamtam.botsdk.model.request.SendMessage
 import chat.tamtam.botsdk.model.response.ChatType
 import com.google.gson.Gson
-import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.model.state.BaseState
-import me.evgen.advbot.model.state.CustomCallbackState
-import me.evgen.advbot.model.state.MessageListener
-import me.evgen.advbot.model.state.StartState
-import me.evgen.advbot.model.state.WelcomeState
+import me.evgen.advbot.model.state.*
+import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.UserService
-import java.lang.Exception
 
 fun main() {
     longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
@@ -30,7 +25,7 @@ fun main() {
                 is ResultRequest.Success ->  {
                     val chatName = res.response.title
                     "Вы успешно добавили бота в $chatName" sendFor it.user.userId
-                    DBSessionFactoryUtil.localStorage.addChat(it.getUserId(), res.response)
+                    PlatformService.addPlatform(it.user.userId.id, res.response.chatId.id)
                 }
                 is ResultRequest.Failure -> res.exception
             }

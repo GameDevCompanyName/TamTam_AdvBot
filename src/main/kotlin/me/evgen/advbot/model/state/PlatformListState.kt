@@ -7,17 +7,25 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.getBackButton
-import me.evgen.advbot.getUserId
-import me.evgen.advbot.model.AdPlatform
+import me.evgen.advbot.getUserIdLong
+import me.evgen.advbot.model.IPlatform
+import me.evgen.advbot.service.PlatformService
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = DBSessionFactoryUtil.localStorage.getPlatforms(callbackState.getUserId())
+        val adPlatform = PlatformService.getPlatforms(callbackState.getUserIdLong())
 
-        val inlineKeyboard = createKeyboard(adPlatform)
+        val chats = mutableSetOf<Chat>()
+
+        for (entry in adPlatform) {
+            entry.getChatFromServer(requestsManager)?.apply {
+                chats.add(this)
+            }
+        }
+
+        val inlineKeyboard = createKeyboard(chats)
 
         """Выберите платформу для настройки размещения.
             |Для того, чтобы платформа появилась в списке, добавьте бота @AdvertizerBot в свой чат или канал.
@@ -28,16 +36,16 @@ class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackS
         )
     }
 
-    private fun createKeyboard(chatSet: Set<AdPlatform>): InlineKeyboard {
+    private fun createKeyboard(chats: Collection<Chat>): InlineKeyboard {
         return keyboard {
-            for (entry in chatSet) {
+            for (entry in chats) {
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
-                        entry.getChatTitle(),
+                        entry.title,
                         payload = Payload(
                             PlatformSettingsState::class,
-                            PlatformSettingsState(timestamp, entry.getChatId().id).toJson()
+                            PlatformSettingsState(timestamp, entry.chatId.id).toJson()
                         ).toJson()
                     )
                 }

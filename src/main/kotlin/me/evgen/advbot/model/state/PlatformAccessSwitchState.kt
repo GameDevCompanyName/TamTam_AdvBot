@@ -5,10 +5,11 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.BotController
 import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.service.PlatformService
 
 class PlatformAccessSwitchState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = DBSessionFactoryUtil.localStorage.getPlatform(callbackState.getUserId(), chatId)
+        val adPlatform = PlatformService.getPlatform(callbackState.getUserId().id, chatId)
         if (adPlatform == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return

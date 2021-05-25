@@ -10,18 +10,23 @@ import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.AdPlatform
+import me.evgen.advbot.model.IPlatform
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.service.PlatformService
 
 class PlatformAccessSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = DBSessionFactoryUtil.localStorage.getPlatform(callbackState.getUserId(), chatId)
-        if (adPlatform == null) {
+        val adPlatform = PlatformService.getPlatform(callbackState.getUserId().id, chatId)
+        val chat = adPlatform?.getChatFromServer(requestsManager)
+        if (chat == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return
         }
 
+
+
         """Настройка доступности платформы:
-            | ${adPlatform.getChatTitle()}
+            | ${chat.title}
             | Текущие параметры доступа к рекламе:
             | ${adPlatform.getAvailability()}""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
@@ -30,7 +35,7 @@ class PlatformAccessSettingsState(timestamp: Long, private val chatId: Long) : B
         )
     }
 
-    private fun createKeyboard(adPlatform: AdPlatform): InlineKeyboard {
+    private fun createKeyboard(adPlatform: IPlatform): InlineKeyboard {
         return keyboard {
             +buttonRow {
                 +Button(

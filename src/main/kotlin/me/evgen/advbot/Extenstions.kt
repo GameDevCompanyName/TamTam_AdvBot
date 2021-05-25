@@ -31,6 +31,19 @@ fun UpdateState.getUserId(): UserId {
     }
 }
 
+fun UpdateState.getUserIdLong(): Long {
+    return when (this) {
+        is CommandState -> this.command.message.sender.userId.id
+        is CallbackState -> this.callback.user.userId.id
+        is MessageState -> this.message.sender.userId.id
+        is StartedBotState -> this.user.userId.id
+        is AddedBotState -> this.user.userId.id
+        is RemovedBotState -> this.user.userId.id
+        is AddedUserState -> this.user.userId.id
+        is RemovedUserState -> this.user.userId.id
+    }
+}
+
 fun UpdateState.getUser(): User {
     return when(this) {
         is StartedBotState -> this.user
