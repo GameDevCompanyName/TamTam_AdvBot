@@ -7,18 +7,17 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.Payloads
 import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.AdPlatform
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val chats = DBSessionFactoryUtil.localStorage.getChats(callbackState.getUserId())
+        val adPlatform = DBSessionFactoryUtil.localStorage.getPlatforms(callbackState.getUserId())
 
-        //TODO: добавть вкл/выкл и теги
-        val inlineKeyboard = createKeyboard(chats)
+        val inlineKeyboard = createKeyboard(adPlatform)
 
         """Выберите платформу для настройки размещения.
             |Для того, чтобы платформа появилась в списке, добавьте бота @AdvertizerBot в свой чат или канал.
@@ -29,16 +28,16 @@ class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackS
         )
     }
 
-    private fun createKeyboard(chatSet: Set<Chat>): InlineKeyboard {
+    private fun createKeyboard(chatSet: Set<AdPlatform>): InlineKeyboard {
         return keyboard {
             for (entry in chatSet) {
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
-                        entry.title,
+                        entry.getChatTitle(),
                         payload = Payload(
                             PlatformSettingsState::class,
-                            PlatformSettingsState(timestamp, entry.chatId.id).toJson()
+                            PlatformSettingsState(timestamp, entry.getChatId().id).toJson()
                         ).toJson()
                     )
                 }

@@ -6,7 +6,7 @@ import me.evgen.advbot.BotController
 import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getUserId
 
-class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, val tag: String) : BaseState(timestamp), CustomCallbackState {
+class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private val tag: String) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
         val adPlatform = DBSessionFactoryUtil.localStorage.getPlatform(callbackState.getUserId(), chatId)
         if (adPlatform == null) {

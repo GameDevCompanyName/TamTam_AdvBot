@@ -6,3 +6,10 @@ fun initialText(name: String): String {
             """.trimMargin()
 }
 
+fun botText(): String {
+    return """
+        |
+        |Рекламное объявление предоставлено @AdvertizerBot
+    """.trimMargin()
+}
+
