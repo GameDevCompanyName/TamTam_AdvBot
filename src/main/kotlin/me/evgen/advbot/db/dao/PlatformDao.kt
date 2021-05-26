@@ -1,10 +1,7 @@
 package me.evgen.advbot.db.dao
 
-import me.evgen.advbot.model.IPlatform
-
-interface PlatformDao : Dao {
-    fun findPlatform(userId: Long, chatId: Long): IPlatform?
-    fun findUserPlatforms(userId: Long): Set<IPlatform>
-    fun update(platform: IPlatform)
-    fun insert(platform: IPlatform)
+abstract class PlatformDao<T> : Dao<T>() {
+    abstract fun findPlatform(id: Long): T?
+    abstract fun findUserPlatforms(userId: Long): Set<T>
+    abstract fun deletePlatform(id: Long)
 }

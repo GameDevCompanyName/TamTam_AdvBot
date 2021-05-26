@@ -32,7 +32,8 @@ fun main() {
         }
 
         onRemoveBotFromChat {
-            //TODO: оповещение об удалении бота из чата и удаление его из хранилища
+            //TODO: оповещение об удалении бота из чата
+            PlatformService.deletePlatform(it.chatId.id)
         }
 
         commands {
@@ -89,14 +90,6 @@ fun main() {
                             return@answerOnMessage
                         }
                         ChatType.CHANNEL -> {
-//                            when (val result =
-//                                SendMessage(
-//                                    """${messageState.message.body.attachments[0]}
-//                                    """.trimMargin()
-//                                ) sendFor messageState.message.recipient.chatId) {
-//                                is ResultRequest.Success -> result.response
-//                                is ResultRequest.Failure -> result.exception
-//                            }
                             val attaches = messageState.message.body.attachments
                             if (attaches.isNotEmpty()) {
                                 when(val attach = attaches[0]) {

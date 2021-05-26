@@ -1,24 +1,18 @@
 package me.evgen.advbot.db.dao
 
-import chat.tamtam.botsdk.model.UserId
-import me.evgen.advbot.db.DBSessionFactoryUtil
-import me.evgen.advbot.model.IPlatform
+import me.evgen.advbot.model.entity.IPlatform
+import me.evgen.advbot.model.entity.Platform
 
-class PlatformDaoImpl : PlatformDao {
-    override fun findPlatform(userId: Long, chatId: Long): IPlatform? {
-        return DBSessionFactoryUtil.localStorage.getPlatform(userId, chatId)
+class PlatformDaoImpl : PlatformDao<IPlatform>() {
+    override fun findPlatform(id: Long): IPlatform? {
+        return find<Platform>(id)
     }
 
     override fun findUserPlatforms(userId: Long): Set<IPlatform> {
-        return DBSessionFactoryUtil.localStorage.getPlatforms(userId)
+        return findAllByColumnName<Platform>("user", userId).toSet()
     }
 
-    override fun update(platform: IPlatform) {
-        //TODO
+    override fun deletePlatform(id: Long) {
+        delete<Platform>(id)
     }
-
-    override fun insert(platform: IPlatform) {
-        DBSessionFactoryUtil.localStorage.addChat(platform)
-    }
-
 }

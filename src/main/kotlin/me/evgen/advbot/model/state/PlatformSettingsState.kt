@@ -6,16 +6,14 @@ import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.db.DBSessionFactoryUtil
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
-import me.evgen.advbot.getUserIdLong
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.PlatformService
 
 class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = PlatformService.getPlatform(callbackState.getUserIdLong(), chatId)
+        val adPlatform = PlatformService.getPlatform(chatId)
         val chat = adPlatform?.getChatFromServer(requestsManager)
         if (chat == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)

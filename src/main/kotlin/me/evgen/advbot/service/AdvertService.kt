@@ -11,7 +11,7 @@ object AdvertService {
     private val tempAdvertDao = TempAdvertDaoImpl()
 
     fun findAdvert(id: Long): Advert? {
-        return advertDao.findById(id)
+        return advertDao.findAdvert(id)
     }
 
     fun addAdvert(advert: Advert) {
@@ -23,7 +23,11 @@ object AdvertService {
     }
 
     fun deleteAdvert(advertId: Long) {
-        advertDao.delete(advertId)
+        advertDao.deleteAdvert(advertId)
+    }
+
+    fun findAdverts(userId: Long): List<Advert> {
+        return advertDao.findAdverts(userId)
     }
 
 
@@ -37,6 +41,6 @@ object AdvertService {
     }
 
     fun deleteTempAdvertByUserId(userId: Long) {
-        tempAdvertDao.delete(userId)
+        tempAdvertDao.deleteTempAdvert(userId)
     }
 }

@@ -8,7 +8,7 @@ object UserService {
     private val userDao = UserDaoImpl()
 
     fun findUser(id: Long): User? {
-        return userDao.findById(id)
+        return userDao.findUser(id)
     }
 
     fun insertUser(user: User) {
@@ -20,6 +20,6 @@ object UserService {
     }
 
     fun getCurrentState(id: Long): BaseState? {
-        return userDao.findById(id)?.getState()
+        return userDao.findUser(id)?.getState()
     }
 }

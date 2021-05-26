@@ -1,10 +1,6 @@
 package me.evgen.advbot.db.dao
 
-import me.evgen.advbot.model.entity.User
-
-interface UserDao : Dao {
-    fun findById(id: Long): User?
-    fun insert(user: User)
-    fun update(user: User)
-    fun delete(id: Long)
+abstract class UserDao<T> : Dao<T>() {
+    abstract fun findUser(id: Long): T?
+    abstract fun deleteUser(id: Long)
 }

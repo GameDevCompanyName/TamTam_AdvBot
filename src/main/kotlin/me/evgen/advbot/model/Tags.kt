@@ -1,5 +1,6 @@
 package me.evgen.advbot.model
 
+//TODO move to DB
 object Tags {
     const val SPORTS = "СПОРТ"
     const val NEWS = "НОВОСТИ"

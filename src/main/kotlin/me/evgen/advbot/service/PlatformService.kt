@@ -2,8 +2,8 @@ package me.evgen.advbot.service
 
 import me.evgen.advbot.db.dao.PlatformDaoImpl
 import me.evgen.advbot.db.dao.UserDaoImpl
-import me.evgen.advbot.model.AdPlatform
-import me.evgen.advbot.model.IPlatform
+import me.evgen.advbot.model.entity.IPlatform
+import me.evgen.advbot.model.entity.Platform
 import me.evgen.advbot.model.entity.User
 import me.evgen.advbot.model.state.WelcomeState
 
@@ -15,31 +15,41 @@ object PlatformService {
         return platformDao.findUserPlatforms(userId)
     }
 
-    fun getPlatform(userId: Long, chatId: Long): IPlatform? {
-        return platformDao.findPlatform(userId, chatId)
+    fun getPlatform(chatId: Long): IPlatform? {
+        return platformDao.findPlatform(chatId)
     }
 
-    fun tagSwitchPlatform(userId: Long, platform: IPlatform, tag: String) {
-        platformDao.findUserPlatforms(userId).first { it.id == platform.id }.apply {
+    fun tagSwitchPlatform(platform: IPlatform, tag: String) {
+        platform.apply {
             if (!tags.contains(tag)) {
                 tags.add(tag)
             } else tags.remove(tag)
         }
+
+        platformDao.update(platform)
+    }
+
+    fun accessSwitch(platform: IPlatform) {
+        platform.availability = !platform.availability
+        platformDao.update(platform)
     }
 
     fun addPlatform(userId: Long, chatId: Long) {
-        var user = userDao.findById(userId)
+        var user = userDao.findUser(userId)
         if (user == null) {
             userDao.insert(User(userId, WelcomeState(System.currentTimeMillis())))
         }
-        user = userDao.findById(userId) //TODO check null after insert
+        user = userDao.findUser(userId) //TODO check null after insert
         platformDao.insert(createAdPlatformFromChat(user!!, chatId))
     }
 
-    private fun createAdPlatformFromChat(user: User, chatId: Long): AdPlatform {
-        return AdPlatform(
+    fun deletePlatform(id: Long) {
+        platformDao.deletePlatform(id)
+    }
+
+    private fun createAdPlatformFromChat(user: User, chatId: Long): IPlatform {
+        return Platform(
             chatId,
-            mutableSetOf(),
             false,
             user
         )
