@@ -51,7 +51,8 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Отключить рекламу 🔒",
+                    "Запустить рекламу 🚀",
+                    intent = ButtonIntent.POSITIVE,
                     payload = Payloads.WIP
                 )
             }

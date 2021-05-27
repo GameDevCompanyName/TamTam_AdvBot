@@ -1,10 +1,12 @@
 package me.evgen.advbot.model.state
 
 import chat.tamtam.botsdk.client.RequestsManager
+import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.response.Permissions
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
@@ -15,9 +17,24 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
         val adPlatform = PlatformService.getPlatform(chatId)
         val chat = adPlatform?.getChatFromServer(requestsManager)
+
         if (chat == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return
+        }
+
+        var permissionsMessage = ""
+
+        when (val res = requestsManager.getMembershipInfoInChat(chat.chatId)) {
+            is ResultRequest.Success -> {
+                if (!res.response.permissions!!.contains(Permissions.WRITE)) {
+                    permissionsMessage = """
+                        |
+                        |⚠ВНИМАНИЕ⚠
+                        |На данном канале у бота отсутствует возможность отправлять сообщения.
+                        |Для нормальной работы бота добавьте его в администраторы канала с возможностью отправки сообщений.""".trimMargin()
+                }
+            }
         }
 
         """Настройка платформы:
@@ -27,7 +44,7 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
             |${adPlatform.getTagsString()}
             |Текущие параметры доступа к рекламе:
             |${adPlatform.getAvailability()}
-            |""".trimMargin().answerWithKeyboard(
+            |$permissionsMessage""".trimMargin().answerWithKeyboard(
             callbackState.callback.callbackId,
             createKeyboard(),
             requestsManager
