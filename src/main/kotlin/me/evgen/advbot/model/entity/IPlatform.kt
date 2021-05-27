@@ -1,16 +1,15 @@
-package me.evgen.advbot.model
+package me.evgen.advbot.model.entity
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.model.prepared.Chat
-import me.evgen.advbot.model.entity.User
 
 
 interface IPlatform {
 
-    val id: Long
+    var id: Long
     var tags: MutableSet<String>
     var availability: Boolean
-    val user: User
+    var user: User
 
     suspend fun getChatFromServer(requestsManager: RequestsManager): Chat?
 
@@ -18,8 +17,5 @@ interface IPlatform {
 
     fun getAvailability(): String
 
-    fun accessSwitch()
-
     fun getAccessButton(): String
-
 }

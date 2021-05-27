@@ -10,7 +10,6 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserIdLong
-import me.evgen.advbot.model.IPlatform
 import me.evgen.advbot.service.PlatformService
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {

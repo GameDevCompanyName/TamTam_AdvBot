@@ -18,9 +18,6 @@ class User() {
     var id: Long = 0
     lateinit var payload: String
 
-    @OneToMany(mappedBy = "owner", cascade = [CascadeType.REMOVE], fetch = FetchType.EAGER)
-    lateinit var advertList: List<Advert>
-
     constructor(id: Long, currentState: BaseState) : this() {
         this.id = id
         this.payload = currentState.toPayload().toJson()

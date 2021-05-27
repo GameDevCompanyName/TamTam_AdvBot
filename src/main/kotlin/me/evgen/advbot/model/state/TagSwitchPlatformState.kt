@@ -9,13 +9,13 @@ import me.evgen.advbot.service.PlatformService
 
 class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private val tag: String) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val adPlatform = PlatformService.getPlatform(callbackState.getUserIdLong(), chatId)
+        val adPlatform = PlatformService.getPlatform(chatId)
         if (adPlatform == null) {
             "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return
         }
 
-        PlatformService.tagSwitchPlatform(callbackState.getUserIdLong(), adPlatform, tag)
+        PlatformService.tagSwitchPlatform(adPlatform, tag)
 
         "Тег успешно изменен".answerNotification(
             callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
