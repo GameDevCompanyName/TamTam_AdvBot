@@ -3,6 +3,7 @@ package me.evgen.advbot.model.state
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.model.AttachType
 import chat.tamtam.botsdk.model.CallbackId
+import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.UserId
 import chat.tamtam.botsdk.model.request.AnswerCallback
 import chat.tamtam.botsdk.model.request.AttachmentKeyboard
@@ -48,6 +49,8 @@ abstract class BaseState(var timestamp: Long) {
     }
 
     suspend fun String.sendTo(userId: UserId, requestsManager: RequestsManager) = requestsManager.send(userId, SendMessage(this))
+
+    suspend fun String.sendTo(chatId: ChatId, requestsManager: RequestsManager) = requestsManager.send(chatId, SendMessage(this))
 
     suspend fun String.sendToUserWithKeyboard(userId: UserId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
         val attaches = if (inlineKeyboard == EMPTY_INLINE_KEYBOARD) {

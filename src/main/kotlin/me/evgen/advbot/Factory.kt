@@ -9,6 +9,8 @@ fun initialText(name: String): String {
 fun botText(): String {
     return """
         |
+        |
+        |
         |Рекламное объявление предоставлено @AdvertizerBot
     """.trimMargin()
 }

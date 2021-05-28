@@ -32,7 +32,7 @@ fun main() {
         }
 
         onRemoveBotFromChat {
-            //TODO: оповещение об удалении бота из чата
+            //TODO из-за того, что в базе хранится только айди чата, мы тут никак не можем получить его тайтл, потому что getChatFromServer возращает null
             PlatformService.deletePlatform(it.chatId.id)
         }
 
@@ -46,8 +46,7 @@ fun main() {
             }
 
             onUnknownCommand {
-                """I'm sorry, but I don't know this command, you can try /start
-                    |if you don't remember all my available command.""".trimMargin() sendFor it.command.message.sender.userId
+                "Неизвестная команда, используйте /start" sendFor it.command.message.sender.userId
             }
 
         }
