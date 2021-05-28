@@ -29,6 +29,10 @@ object PlatformService {
         platformDao.update(platform)
     }
 
+    fun getAllPlatforms(): List<IPlatform> {
+        return platformDao.findAllPlatforms()
+    }
+
     fun accessSwitch(platform: IPlatform) {
         platform.availability = !platform.availability
         platformDao.update(platform)

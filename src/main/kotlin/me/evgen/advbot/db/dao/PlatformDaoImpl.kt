@@ -15,4 +15,8 @@ class PlatformDaoImpl : PlatformDao<IPlatform>() {
     override fun deletePlatform(id: Long) {
         delete<Platform>(id)
     }
+
+    override fun findAllPlatforms(): List<IPlatform> {
+        return findAll<Platform>().toList()
+    }
 }

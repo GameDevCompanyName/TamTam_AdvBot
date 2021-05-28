@@ -14,7 +14,7 @@ import me.evgen.advbot.service.PlatformService
 
 class AdvSendingState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
     override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        val platforms = PlatformService.getPlatforms(callbackState.getUserIdLong())
+        val platforms = PlatformService.getAllPlatforms()
         val advert = AdvertService.findAdvert(advertId)
         if (advert != null) {
             val message = "${advert.text}${botText()}"
@@ -31,7 +31,7 @@ class AdvSendingState(timestamp: Long, private val advertId: Long) : BaseState(t
             }
         }
 
-        "Реклама успешно запущена".answerNotification(
+        "Рекламное объявление успешно отправлено".answerNotification(
             callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
 
         val newState = AdvState(timestamp, advertId)
