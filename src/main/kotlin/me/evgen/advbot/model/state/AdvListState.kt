@@ -13,7 +13,10 @@ import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.AdvertService
 
 class AdvListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val ads = AdvertService.findAdverts(callbackState.getUserId().id)
 
         val inlineKeyboard = createKeyboard(ads)

@@ -1,6 +1,5 @@
 package me.evgen.advbot.db
 
-import me.evgen.advbot.db.local.LocalStorage
 import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.entity.Platform
 import me.evgen.advbot.model.entity.User
@@ -11,8 +10,8 @@ import org.hibernate.cfg.Configuration
 
 object DBSessionFactoryUtil {
     val sessionFactory: SessionFactory = initSessionFactory()
-    val localStorage: LocalStorage = LocalStorage()
 
+    //TODO try catch init
     private fun initSessionFactory(): SessionFactory {
         val configuration = Configuration().configure().apply {
             addAnnotatedClass(Advert::class.java)

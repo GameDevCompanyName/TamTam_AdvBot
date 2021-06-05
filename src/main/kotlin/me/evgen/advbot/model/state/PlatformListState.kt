@@ -13,7 +13,10 @@ import me.evgen.advbot.getUserIdLong
 import me.evgen.advbot.service.PlatformService
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val adPlatform = PlatformService.getPlatforms(callbackState.getUserIdLong())
 
         val chats = mutableSetOf<Chat>()

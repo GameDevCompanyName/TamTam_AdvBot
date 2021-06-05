@@ -8,12 +8,14 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.BotController
 import me.evgen.advbot.botText
 import me.evgen.advbot.getUserId
-import me.evgen.advbot.getUserIdLong
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.PlatformService
 
 class AdvSendingState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val platforms = PlatformService.getAllPlatforms()
         val advert = AdvertService.findAdvert(advertId)
         if (advert != null) {
@@ -36,7 +38,7 @@ class AdvSendingState(timestamp: Long, private val advertId: Long) : BaseState(t
 
         val newState = AdvState(timestamp, advertId)
         BotController.moveTo(newState, callbackState.getUserId().id) {
-            newState.handle(callbackState, prevState, requestsManager)
+            newState.handle(callbackState, requestsManager)
         }
     }
 }

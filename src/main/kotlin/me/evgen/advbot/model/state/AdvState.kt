@@ -14,7 +14,10 @@ import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.AdvertService
 
 class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val advert = AdvertService.findAdvert(advertId)
         if (advert == null) {
             "Ошибка! Нет такой рекламы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)

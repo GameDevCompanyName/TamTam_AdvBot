@@ -13,7 +13,10 @@ import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.PlatformService
 
 class PlatformAccessSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val adPlatform = PlatformService.getPlatform(chatId)
         val chat = adPlatform?.getChatFromServer(requestsManager)
         if (chat == null) {

@@ -14,7 +14,7 @@ import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.UserService
 
 fun main() {
-    longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
+    longPolling(LongPollingStartingParams("dg370Ox_HsEK3qPYlhpc-2NZqU4yAGmoa9U_B5ImxHs")) {
 
         onStartBot {
             WelcomeState(System.currentTimeMillis()).handle(it, requests)
@@ -41,7 +41,7 @@ fun main() {
             onCommand("/start") {
                 val newState = StartState(System.currentTimeMillis())
                 BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
-                    newState.handle(it, oldState, requests)
+                    newState.handle(it, requests)
                 }
             }
 
@@ -60,9 +60,9 @@ fun main() {
                     val payload = gson.fromJson(it.callback.payload, Payload::class.java)
                     val newState = gson.fromJson(payload.jsonState, Class.forName(payload.className)) as BaseState
 
-                    BotController.moveTo(newState, it.getUserId().id) { oldState ->
+                    BotController.moveTo(newState, it.getUserId().id) { _ ->
                         if (newState is CustomCallbackState) {
-                            newState.handle(it, oldState, requests)
+                            newState.handle(it, requests)
                         }
                     }
                 } catch (e: Exception) {

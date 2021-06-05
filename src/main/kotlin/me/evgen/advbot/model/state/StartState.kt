@@ -12,15 +12,13 @@ import me.evgen.advbot.model.navigation.Payload
 
 class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, CustomCommandState {
 
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val inlineKeyboard = createKeyboard()
 
         "Выберите один из предложенных вариантов:".answerWithKeyboard(callbackState.callback.callbackId, inlineKeyboard, requestsManager)
     }
 
-    override suspend fun handle(commandState: CommandState, prevState: BaseState, requestsManager: RequestsManager) {
-        super.handle(commandState, prevState, requestsManager)
-
+    override suspend fun handle(commandState: CommandState, requestsManager: RequestsManager) {
         val userId = commandState.getUserId()
         val inlineKeyboard = createKeyboard()
 

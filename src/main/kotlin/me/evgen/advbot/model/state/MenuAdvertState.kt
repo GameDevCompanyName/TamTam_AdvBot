@@ -11,7 +11,10 @@ import me.evgen.advbot.model.navigation.Payload
 
 class MenuAdvertState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
 
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val inlineKeyboard = createKeyboard()
 
         "Размещение рекламы".answerWithKeyboard(callbackState.callback.callbackId, inlineKeyboard, requestsManager)
