@@ -8,6 +8,7 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
 import me.evgen.advbot.Payloads
+import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
@@ -68,7 +69,7 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка названия ✏",
+                    "Настройка названия ${Emoji.PENCIL}",
                     payload = Payload(
                         AdvTitlingState::class,
                         AdvTitlingState(timestamp, advertId, isCreatingAdvert).toJson()
@@ -78,7 +79,7 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка текста 📃",
+                    "Настройка текста ${Emoji.TEXT}",
                     payload = Payload(
                         AdvTextingState::class,
                         AdvTextingState(timestamp, advertId, isCreatingAdvert).toJson()
@@ -95,7 +96,7 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка каналов 📢",
+                    "Настройка тегов ${Emoji.TAG}",
                     payload = Payloads.WIP
                 )
             }
