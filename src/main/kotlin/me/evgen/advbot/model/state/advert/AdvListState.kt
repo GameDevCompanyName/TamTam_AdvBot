@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -10,9 +10,12 @@ import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.AdvertService
 
-class AdvListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
+class AdvListState(timestamp: Long) : BaseState(timestamp),
+    CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager

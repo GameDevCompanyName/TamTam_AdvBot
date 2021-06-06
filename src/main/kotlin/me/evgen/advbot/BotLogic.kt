@@ -39,9 +39,14 @@ fun main() {
         commands {
 
             onCommand("/start") {
-                val newState = StartState(System.currentTimeMillis())
-                BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
-                    newState.handle(it, requests)
+                try {
+                    val newState = StartState(System.currentTimeMillis())
+                    BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
+                        newState.handle(it, requests)
+                    }
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    //TODO log
                 }
             }
 

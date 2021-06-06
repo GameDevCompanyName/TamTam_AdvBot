@@ -7,12 +7,12 @@ import java.lang.Exception
 object BotController {
     suspend fun moveTo(newState: BaseState, userId: Long, isForce: Boolean = false, onSuccess: suspend (BaseState) -> Unit) {
         val user = UserService.findUser(userId) ?: return
-        var oldState = user.getState()
+        var oldState = if (!isForce) user.getState() else null
         when {
             isForce -> {
                 oldState = newState
             }
-            oldState.timestamp == newState.timestamp -> {
+            oldState?.timestamp == newState.timestamp -> {
                 newState.timestamp = System.currentTimeMillis()
             }
             else -> {

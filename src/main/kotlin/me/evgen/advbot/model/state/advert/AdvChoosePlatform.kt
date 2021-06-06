@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -11,6 +11,8 @@ import me.evgen.advbot.Payloads
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.PlatformService
 
 class AdvChoosePlatform(
