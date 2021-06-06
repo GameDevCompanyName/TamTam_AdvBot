@@ -26,19 +26,25 @@ class AdvChoosePlatform(
     }
 
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
+        var isPlatformListEmpty = false
         val chatList: MutableList<Chat> = mutableListOf()
         var tempAnchorId: Long = anchorId
+        var tempQuantity = QUANTITY_PLATFORM_ON_PAGE
         do {
             val platformList = PlatformService.getPlatformsForPosting(
                 tempAnchorId,
-                QUANTITY_PLATFORM_ON_PAGE,
+                tempQuantity,
                 isForward,
                 advertId
             )
             for (p in platformList) {
                 val chat = p.getChatFromServer(requestsManager)
                 if (chat != null) {
-                    chatList.add(chat)
+                    if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
+                        chatList.add(chat)
+                    } else {
+                        chatList.add(0, chat)
+                    }
                 }
             }
             if (platformList.isNotEmpty()) {
@@ -47,12 +53,15 @@ class AdvChoosePlatform(
                 } else {
                     platformList.first().id
                 }
+            } else {
+                isPlatformListEmpty = true
             }
+            tempQuantity = QUANTITY_PLATFORM_ON_PAGE - chatList.size
         } while (chatList.size != QUANTITY_PLATFORM_ON_PAGE && platformList.isNotEmpty())
 
-        val hasMoreForward = chatList.size < QUANTITY_PLATFORM_ON_PAGE
+        val hasMoreForward = !isPlatformListEmpty && (chatList.size < QUANTITY_PLATFORM_ON_PAGE
                 || (chatList.isNotEmpty()
-                    && PlatformService.hasMorePlatformsForPosting(chatList.last().chatId.id, 1, true, advertId))
+                    && PlatformService.hasMorePlatformsForPosting(chatList.last().chatId.id, 1, true, advertId)))
 
         val keyboard = createKeyboard(
             chatList,
