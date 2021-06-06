@@ -66,12 +66,15 @@ fun main() {
                         }
                     }
                 } catch (e: Exception) {
-                    println(e.localizedMessage)
+                    e.printStackTrace()
                     //TODO norm log
                 }
             }
             answerOnCallback(Payloads.WIP) {
                 "Work in progress" answerNotification AnswerParams(it.callback.callbackId, it.callback.user.userId)
+            }
+            answerOnCallback(Payloads.EMPTY) {
+                //Nothing
             }
         }
 

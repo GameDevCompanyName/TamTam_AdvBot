@@ -56,10 +56,7 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     ButtonType.CALLBACK,
                     "Запустить рекламу 🚀",
                     intent = ButtonIntent.POSITIVE,
-                    payload = Payload(
-                        AdvSendingState::class,
-                        AdvSendingState(timestamp, advertId).toJson()
-                    ).toJson()
+                    payload = AdvChoosePlatform(timestamp, advertId, true).toPayload().toJson()
                 )
             }
             +buttonRow {

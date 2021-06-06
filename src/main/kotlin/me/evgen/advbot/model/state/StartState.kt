@@ -22,8 +22,8 @@ class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, C
         val userId = commandState.getUserId()
         val inlineKeyboard = createKeyboard()
 
-        "Вы можете разместить рекламу или предоставить площадку для ее размещения".sendTo(userId, requestsManager)
-        "Выберите один из предложенных вариантов:".sendToUserWithKeyboard(userId, inlineKeyboard, requestsManager)
+        "Вы можете разместить рекламу или предоставить площадку для ее размещения."
+            .sendToUserWithKeyboard(userId, inlineKeyboard, requestsManager)
     }
 
     private fun createKeyboard(): InlineKeyboard {
