@@ -26,7 +26,7 @@ object BotController {
 
             onSuccess.invoke(oldState)
         } catch (e: Exception) {
-            println(e.localizedMessage)
+            e.printStackTrace()
             //TODO norm log
         }
     }

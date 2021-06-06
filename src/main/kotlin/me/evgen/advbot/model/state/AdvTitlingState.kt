@@ -15,7 +15,7 @@ class AdvTitlingState(
     private val isCreatingAdvert: Boolean
 ) : BaseState(timestamp), CustomCallbackState, MessageListener {
 
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val inlineKeyboard = createCancelKeyboard(
             Payload(
                 AdvConstructorState::class, AdvConstructorState(
@@ -30,9 +30,10 @@ class AdvTitlingState(
 
     override suspend fun onMessageReceived(messageState: MessageState, requestsManager: RequestsManager) {
         val newTitle = messageState.message.body.text
-        val tempAdvert = AdvertService.findTempAdvertByUserId(messageState.getUserId().id)
-        if (tempAdvert != null) {
-            tempAdvert.title = newTitle
+        val advert = AdvertService.findAdvert(advertId)
+        if (advert != null) {
+            advert.title = newTitle
+            AdvertService.updateAdvert(advert)
         }
 
         val newState = AdvConstructorState(timestamp, advertId, isCreatingAdvert)

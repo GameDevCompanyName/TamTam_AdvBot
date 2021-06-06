@@ -8,12 +8,15 @@ import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
-import me.evgen.advbot.getCancelButton
+import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.AdvertService
 
 class AdvDeleteDialogState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    ) {
         val advert = AdvertService.findAdvert(advertId)
         if (advert == null) {
             "Не удалось обнаружить такую рекламу.".answerWithKeyboard(callbackState.callback.callbackId, createErrorKeyboard(), requestsManager)
@@ -30,8 +33,8 @@ class AdvDeleteDialogState(timestamp: Long, private val advertId: Long) : BaseSt
     private fun createKeyboard(): InlineKeyboard {
         return keyboard {
             +buttonRow {
-                +getCancelButton(
-                    Payload(AdvState::class, AdvState(timestamp, advertId).toJson())
+                +CallbackButton.DEFAULT_CANCEL.create(
+                    AdvState(timestamp, advertId).toPayload()
                 )
                 +Button(
                     ButtonType.CALLBACK,

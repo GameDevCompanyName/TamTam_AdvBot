@@ -23,10 +23,9 @@ class Advert() {
     @JoinColumn(name = "${TableName.USER}_id")
     lateinit var owner: User
 
-    constructor(tempAdvert: TempAdvert) : this () {
-        this.id = tempAdvert.id
-        this.title = tempAdvert.title
-        this.text = tempAdvert.text
-        this.owner = tempAdvert.owner
+    constructor(title: String, owner: User) : this () {
+        this.title = title
+        this.text = ""
+        this.owner = owner
     }
 }

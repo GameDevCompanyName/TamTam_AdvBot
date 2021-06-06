@@ -11,6 +11,24 @@ object PlatformService {
     private val platformDao = PlatformDaoImpl()
     private val userDao = UserDaoImpl()
 
+    fun hasMorePlatformsForPosting(
+        anchorId: Long,
+        quantity: Int,
+        isForward: Boolean,
+        advertId: Long
+    ): Boolean {
+        return getPlatformsForPosting(anchorId, quantity, isForward, advertId).isNotEmpty()
+    }
+
+    fun getPlatformsForPosting(
+        anchorId: Long,
+        quantity: Int,
+        isForward: Boolean,
+        advertId: Long): List<IPlatform> {
+
+        return platformDao.findPlatformForAdvert(advertId, isForward, anchorId, quantity)
+    }
+
     fun getPlatforms(userId: Long): Set<IPlatform> {
         return platformDao.findUserPlatforms(userId)
     }

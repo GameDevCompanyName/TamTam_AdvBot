@@ -1,18 +1,14 @@
 package me.evgen.advbot.db.dao
 
 import me.evgen.advbot.db.DBSessionFactoryUtil
-import me.evgen.advbot.db.local.LocalStorage
 import org.hibernate.Session
 import org.hibernate.SessionFactory
+import java.io.Serializable
 import javax.persistence.criteria.Root
 
 abstract class Dao<T> {
     protected fun getDBSession(): SessionFactory? {
         return DBSessionFactoryUtil.sessionFactory
-    }
-
-    protected fun getLocalStorage(): LocalStorage {
-        return DBSessionFactoryUtil.localStorage
     }
 
     protected fun execute(action: (Session) -> Unit) {
@@ -28,10 +24,12 @@ abstract class Dao<T> {
         }
     }
 
-    open fun insert(entity: T) {
+    open fun insert(entity: T): Serializable? {
+        var id: Serializable? = null
         execute {
-            it.save(entity)
+            id = it.save(entity)
         }
+        return id
     }
 
     open fun update(entity: T) {

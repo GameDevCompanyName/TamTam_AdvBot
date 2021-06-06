@@ -8,10 +8,10 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
 import me.evgen.advbot.Payloads
-import me.evgen.advbot.getCancelButton
-import me.evgen.advbot.getDoneButton
+import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
-import me.evgen.advbot.model.entity.TempAdvert
+import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.ErrorType
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.service.AdvertService
 
@@ -21,30 +21,47 @@ class AdvConstructorState(
     private val isCreatingAdvert: Boolean
 ) : BaseState(timestamp), CustomCallbackState, CustomMessageState {
 
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
-        var message = "ОШИБКА"
-
+    override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
+        var message = ErrorType.EDIT_ADVERT.errorMessage
         if (!isCreatingAdvert) {
             val advert = AdvertService.findAdvert(advertId)
             if (advert != null) {
-                val tempAdvert = TempAdvert(advert)
-                AdvertService.addTempAdvert(tempAdvert)
-                message = createMessage(tempAdvert.title, tempAdvert.text)
+                message = createMessage(advert.title, advert.text)
             }
         }
 
-        message.answerWithKeyboard(callbackState.callback.callbackId, createKeyboard(), requestsManager)
+        val keyboard = if (message == ErrorType.EDIT_ADVERT.errorMessage) {
+            if (isCreatingAdvert) {
+                createErrorKeyboard(MenuAdvertState(timestamp).toPayload())
+            } else {
+                createErrorKeyboard(AdvState(timestamp, advertId).toPayload())
+            }
+        } else {
+            createKeyboard()
+        }
+
+        message.answerWithKeyboard(callbackState.callback.callbackId, keyboard, requestsManager)
     }
 
     override suspend fun handle(messageState: MessageState, requestsManager: RequestsManager) {
-        val tempAdvert = AdvertService.findTempAdvertByUserId(messageState.getUserId().id)
-        val message = if (tempAdvert != null) {
-            createMessage(tempAdvert.title, tempAdvert.text)
+        val advert = AdvertService.findAdvert(advertId)
+        val message: String
+        val keyboard: InlineKeyboard
+        if (advert != null) {
+            message = createMessage(advert.title, advert.text)
+            keyboard = createKeyboard()
         } else {
-            "ОШИБКА"
+            message = ErrorType.EDIT_ADVERT.errorMessage
+            keyboard = keyboard {
+                +buttonRow {
+                    +CallbackButton.RELOAD.create(
+                        AdvConstructorState(timestamp, advertId, isCreatingAdvert).toPayload()
+                    )
+                }
+            }
         }
 
-        message.sendToUserWithKeyboard(messageState.getUserId(), createKeyboard(), requestsManager)
+        message.sendToUserWithKeyboard(messageState.getUserId(), keyboard, requestsManager)
     }
 
     private fun createKeyboard(): InlineKeyboard {
@@ -52,7 +69,7 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка названия ✏",
+                    "Настройка названия ${Emoji.PENCIL}",
                     payload = Payload(
                         AdvTitlingState::class,
                         AdvTitlingState(timestamp, advertId, isCreatingAdvert).toJson()
@@ -62,7 +79,7 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка текста 📃",
+                    "Настройка текста ${Emoji.TEXT}",
                     payload = Payload(
                         AdvTextingState::class,
                         AdvTextingState(timestamp, advertId, isCreatingAdvert).toJson()
@@ -79,36 +96,27 @@ class AdvConstructorState(
             +buttonRow {
                 +Button(
                     ButtonType.CALLBACK,
-                    "Настройка каналов 📢",
+                    "Настройка тегов ${Emoji.TAG}",
                     payload = Payloads.WIP
                 )
             }
-
             +buttonRow {
-                val prevCancelPayload = if (isCreatingAdvert) {
-                    Payload(
-                        MenuAdvertState::class, MenuAdvertState(
-                            timestamp
-                        ).toJson()
-                    )
-                } else {
+                +CallbackButton.TO_ACTIONS.create(
                     Payload(
                         AdvState::class, AdvState(
                             timestamp,
                             advertId
                         ).toJson()
                     )
-                }
-                +getCancelButton(prevCancelPayload, needNegativeIntent = true)
-                +getDoneButton(
-                    Payload(
-                        SaveAdvertState::class, SaveAdvertState(
-                            timestamp,
-                            advertId,
-                            isCreatingAdvert
-                        ).toJson()
-                    )
                 )
+            }
+        }
+    }
+
+    private fun createErrorKeyboard(backPayload: Payload): InlineKeyboard {
+        return keyboard {
+            +buttonRow {
+                +CallbackButton.BACK.create(backPayload)
             }
         }
     }
