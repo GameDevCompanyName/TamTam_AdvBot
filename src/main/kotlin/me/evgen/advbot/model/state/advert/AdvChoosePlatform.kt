@@ -13,6 +13,7 @@ import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.PayPostingState
 import me.evgen.advbot.service.PlatformService
 
 class AdvChoosePlatform(
@@ -93,7 +94,12 @@ class AdvChoosePlatform(
                     +Button(
                         ButtonType.CALLBACK,
                         "${chat.title} (${chat.participantsCount} ₽)",
-                        payload = Payloads.WIP
+                        payload = PayPostingState(
+                            timestamp,
+                            advertId,
+                            chat.chatId.id,
+                            chat.participantsCount
+                        ).toPayload().toJson()
                     )
                 }
             }
