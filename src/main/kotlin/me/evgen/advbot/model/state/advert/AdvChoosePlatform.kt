@@ -1,11 +1,13 @@
 package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
+import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.response.Permissions
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.emoji.Emoji
@@ -43,10 +45,16 @@ class AdvChoosePlatform(
             for (p in platformList) {
                 val chat = p.getChatFromServer(requestsManager)
                 if (chat != null) {
-                    if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
-                        chatList.add(chat)
-                    } else {
-                        chatList.add(0, chat)
+                    val chatMember = requestsManager.getMembershipInfoInChat(chat.chatId)
+                    if (chatMember is ResultRequest.Success) {
+                        val permissions =  chatMember.response.permissions
+                        if (permissions != null && permissions.contains(Permissions.WRITE)) {
+                            if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
+                                chatList.add(chat)
+                            } else {
+                                chatList.add(0, chat)
+                            }
+                        }
                     }
                 }
             }

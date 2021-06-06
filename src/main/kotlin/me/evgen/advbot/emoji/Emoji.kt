@@ -14,4 +14,5 @@ object Emoji {
     const val NEXT_PAGE = "▶"
     const val PREVIOUS_PAGE = "◀"
     const val INFO = "ℹ"
+    const val FIRECRACKER = "\uD83C\uDF89"
 }

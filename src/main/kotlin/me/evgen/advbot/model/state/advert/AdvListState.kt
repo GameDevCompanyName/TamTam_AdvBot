@@ -6,8 +6,8 @@ import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
-import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
+import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
@@ -16,18 +16,23 @@ import me.evgen.advbot.service.AdvertService
 
 class AdvListState(timestamp: Long) : BaseState(timestamp),
     CustomCallbackState {
-    override suspend fun handle(
-        callbackState: CallbackState,
-        requestsManager: RequestsManager
-    ) {
+    override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val ads = AdvertService.findAdverts(callbackState.getUserId().id)
 
         val inlineKeyboard = createKeyboard(ads)
 
         if (ads.isNotEmpty()){
-            "Ваши объявления:".answerWithKeyboard(callbackState.callback.callbackId, inlineKeyboard, requestsManager)
+            "Ваши объявления:".sendToUserWithKeyboard(
+                callbackState.getUserId(),
+                inlineKeyboard,
+                requestsManager
+            )
         } else {
-            "Здесь будут отображаться ваши объявления".answerWithKeyboard(callbackState.callback.callbackId, inlineKeyboard, requestsManager)
+            "Здесь будут отображаться ваши объявления".sendToUserWithKeyboard(
+                callbackState.getUserId(),
+                inlineKeyboard,
+                requestsManager
+            )
         }
     }
 
@@ -46,7 +51,7 @@ class AdvListState(timestamp: Long) : BaseState(timestamp),
                 }
             }
             +buttonRow {
-                +getBackButton(
+                +CallbackButton.BACK.create(
                     Payload(
                         MenuAdvertState::class, MenuAdvertState(
                             timestamp

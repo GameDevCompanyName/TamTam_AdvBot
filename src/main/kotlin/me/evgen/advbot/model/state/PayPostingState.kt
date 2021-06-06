@@ -12,6 +12,7 @@ import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.state.advert.AdvChoosePlatform
+import me.evgen.advbot.model.state.advert.AdvSendingState
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.PlatformService
 
@@ -57,7 +58,11 @@ class PayPostingState(
                 +Button(
                     ButtonType.CALLBACK,
                     "Оплатить",
-                    payload = Payloads.WIP,
+                    payload = AdvSendingState(
+                        timestamp,
+                        advertId,
+                        chatId
+                    ).toPayload().toJson(),
                     intent = ButtonIntent.POSITIVE
                 )
             }
