@@ -26,24 +26,39 @@ class AdvChoosePlatform(
     }
 
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
-        val platformList = PlatformService.getPlatformsForPosting(
-            anchorId,
-            QUANTITY_PLATFORM_ON_PAGE,
-            isForward,
-            advertId
-        )
-        val chatList = mutableListOf<Chat>()
-        for (p in platformList) {
-            val chat = p.getChatFromServer(requestsManager)
-            if (chat != null) {
-                chatList.add(chat)
+        val chatList: MutableList<Chat> = mutableListOf()
+        var tempAnchorId: Long = anchorId
+        do {
+            val platformList = PlatformService.getPlatformsForPosting(
+                tempAnchorId,
+                QUANTITY_PLATFORM_ON_PAGE,
+                isForward,
+                advertId
+            )
+            for (p in platformList) {
+                val chat = p.getChatFromServer(requestsManager)
+                if (chat != null) {
+                    chatList.add(chat)
+                }
             }
-        }
+            if (platformList.isNotEmpty()) {
+                tempAnchorId = if (isForward) {
+                    platformList.last().id
+                } else {
+                    platformList.first().id
+                }
+            }
+        } while (chatList.size != QUANTITY_PLATFORM_ON_PAGE && platformList.isNotEmpty())
+
+        val hasMoreForward = chatList.size < QUANTITY_PLATFORM_ON_PAGE
+                || (chatList.isNotEmpty()
+                    && PlatformService.hasMorePlatformsForPosting(chatList.last().chatId.id, 1, true, advertId))
 
         val keyboard = createKeyboard(
             chatList,
-            if (platformList.isEmpty()) -1L else platformList.first().id,
-            if (platformList.isEmpty()) -1L else platformList.last().id
+            if (chatList.isEmpty()) -1L else chatList.first().chatId.id,
+            if (chatList.isEmpty()) -1L else chatList.last().chatId.id,
+            hasMoreForward
         )
 
         """Страница №${pageNum}
@@ -55,7 +70,12 @@ class AdvChoosePlatform(
             )
     }
 
-    private fun createKeyboard(chatList: List<Chat>, firstAnchorId: Long, lastAnchorId: Long): InlineKeyboard {
+    private fun createKeyboard(
+        chatList: List<Chat>,
+        firstAnchorId: Long,
+        lastAnchorId: Long,
+        hasMoreForward: Boolean): InlineKeyboard {
+
         return keyboard {
             for (chat in chatList) {
                 +buttonRow {
@@ -86,7 +106,7 @@ class AdvChoosePlatform(
                 +CallbackButton.DEFAULT_CANCEL.create(
                     AdvState(timestamp, advertId).toPayload()
                 )
-                if (chatList.size == QUANTITY_PLATFORM_ON_PAGE && lastAnchorId != -1L) {
+                if (hasMoreForward && lastAnchorId != -1L) {
                     +Button(
                         ButtonType.CALLBACK,
                         "Страница №${pageNum + 1} ${Emoji.NEXT_PAGE}",
