@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state.platform
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.state.CallbackState
@@ -6,27 +6,27 @@ import me.evgen.advbot.BotController
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
-import me.evgen.advbot.service.PlatformService
+import me.evgen.advbot.service.AdvertService
 
-class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private val tagId: Long) : BaseState(timestamp),
+class TagSwitchAdvertState(timestamp: Long, private val advertId: Long, private val tagId: Long) : BaseState(timestamp),
     CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager
     ) {
-        val adPlatform = PlatformService.getPlatform(chatId)
-        if (adPlatform == null) {
-            "Ошибка! Нет такой платформы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
+        val advert = AdvertService.findAdvert(advertId)
+        if (advert == null) {
+            "Ошибка! Нет такого объявления.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
             return
         }
 
-        PlatformService.tagSwitchPlatform(adPlatform, tagId)
+        AdvertService.tagSwitchAdvert(advert, tagId)
 
         "Тег успешно изменен".answerNotification(
             callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
 
         val newState =
-            TagSelectionPlatformState(timestamp, chatId)
+            TagSelectionAdvertState(timestamp, advertId)
         BotController.moveTo(newState, callbackState.getUserId().id) {
             newState.handle(callbackState, requestsManager)
         }

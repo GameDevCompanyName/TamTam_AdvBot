@@ -34,7 +34,7 @@ abstract class Dao<T> {
 
     open fun update(entity: T) {
         execute {
-            it.update(entity)
+            it.merge(entity)
         }
     }
 

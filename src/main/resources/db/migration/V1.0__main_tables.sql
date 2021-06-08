@@ -20,16 +20,3 @@ create table platform
     users_id        bigint not null references users (id)
 );
 create index platform_user_id_idx on platform (users_id);
-
---create table user_group
---(
---    id bigint primary key
---);
---
---create table user_group_advertisement
---(
---    advertisement_id bigint references advertisement (id),
---    user_group_id bigint references user_group (id)
---);
---create index user_group_advertisement_advertisement_id on user_group_advertisement(advertisement_id);
---create index user_group_advertisement_user_group_id on user_group_advertisement(user_group_id);

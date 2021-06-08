@@ -5,10 +5,13 @@ import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.prepared.Chat
 import me.evgen.advbot.db.TableName
+import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.JoinTable
+import javax.persistence.ManyToMany
 import javax.persistence.ManyToOne
 import javax.persistence.Table
 
@@ -23,9 +26,13 @@ class Platform() : IPlatform {
     @JoinColumn(name = "${TableName.USER}_id")
     override lateinit var user: User
 
-    //TODO create many to many table for platform-tags
-    @Transient
-    override var tags: MutableSet<String> = mutableSetOf()
+    @ManyToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = TableName.PLATFORM_TAG,
+        joinColumns = [JoinColumn(name = "${TableName.PLATFORM}_id")],
+        inverseJoinColumns = [JoinColumn(name = "${TableName.TAG}_id")]
+    )
+    override lateinit var tags: MutableSet<Tag>
 
     constructor(id: Long,
                 availability: Boolean,
@@ -39,7 +46,7 @@ class Platform() : IPlatform {
     override fun getTagsString(): String {
         return buildString {
             for (entry in tags) {
-                append("$entry\n")
+                append("${entry.name}\n")
             }
         }
     }
