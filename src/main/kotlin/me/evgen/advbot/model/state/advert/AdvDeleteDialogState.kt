@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -10,9 +10,12 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.AdvertService
 
-class AdvDeleteDialogState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
+class AdvDeleteDialogState(timestamp: Long, private val advertId: Long) : BaseState(timestamp),
+    CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager
@@ -53,7 +56,11 @@ class AdvDeleteDialogState(timestamp: Long, private val advertId: Long) : BaseSt
         return keyboard {
             +buttonRow {
                 +getBackButton(
-                    Payload(AdvState::class, AdvState(timestamp, advertId).toJson())
+                    Payload(
+                        AdvState::class, AdvState(
+                            timestamp,
+                            advertId
+                        ).toJson())
                 )
             }
         }

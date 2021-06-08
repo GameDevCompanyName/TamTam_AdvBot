@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -8,8 +8,12 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.StartState
 
-class MenuAdvertState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
+class MenuAdvertState(timestamp: Long) : BaseState(timestamp),
+    CustomCallbackState {
 
     override suspend fun handle(
         callbackState: CallbackState,

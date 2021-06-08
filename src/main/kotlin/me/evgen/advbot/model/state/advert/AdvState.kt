@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -11,9 +11,12 @@ import me.evgen.advbot.Payloads
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.AdvertService
 
-class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestamp), CustomCallbackState {
+class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestamp),
+    CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager
@@ -40,7 +43,11 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     "Настроить рекламу ⚙",
                     payload = Payload(
                         AdvConstructorState::class,
-                        AdvConstructorState(timestamp, advertId, isCreatingAdvert = false).toJson()
+                        AdvConstructorState(
+                            timestamp,
+                            advertId,
+                            isCreatingAdvert = false
+                        ).toJson()
                     ).toJson()
                 )
             }
@@ -56,7 +63,11 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     ButtonType.CALLBACK,
                     "Запустить рекламу 🚀",
                     intent = ButtonIntent.POSITIVE,
-                    payload = AdvChoosePlatform(timestamp, advertId, true).toPayload().toJson()
+                    payload = AdvChoosePlatform(
+                        timestamp,
+                        advertId,
+                        true
+                    ).toPayload().toJson()
                 )
             }
             +buttonRow {

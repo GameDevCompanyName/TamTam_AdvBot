@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.platform
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.client.ResultRequest
@@ -11,9 +11,12 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.PlatformService
 
-class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp), CustomCallbackState {
+class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseState(timestamp),
+    CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager
@@ -62,7 +65,10 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
                     "Настройка тегов 🏷",
                     payload = Payload(
                         TagSelectionPlatformState::class,
-                        TagSelectionPlatformState(timestamp, chatId).toJson()
+                        TagSelectionPlatformState(
+                            timestamp,
+                            chatId
+                        ).toJson()
                     ).toJson()
                 )
             }
@@ -72,7 +78,10 @@ class PlatformSettingsState(timestamp: Long, private val chatId: Long) : BaseSta
                     "Настройка доступа 🔒",
                     payload = Payload(
                         PlatformAccessSettingsState::class,
-                        PlatformAccessSettingsState(timestamp, chatId).toJson()
+                        PlatformAccessSettingsState(
+                            timestamp,
+                            chatId
+                        ).toJson()
                     ).toJson()
                 )
             }

@@ -1,16 +1,21 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
+import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.prepared.Chat
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.response.Permissions
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.Payloads
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.PayPostingState
 import me.evgen.advbot.service.PlatformService
 
 class AdvChoosePlatform(
@@ -40,10 +45,16 @@ class AdvChoosePlatform(
             for (p in platformList) {
                 val chat = p.getChatFromServer(requestsManager)
                 if (chat != null) {
-                    if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
-                        chatList.add(chat)
-                    } else {
-                        chatList.add(0, chat)
+                    val chatMember = requestsManager.getMembershipInfoInChat(chat.chatId)
+                    if (chatMember is ResultRequest.Success) {
+                        val permissions =  chatMember.response.permissions
+                        if (permissions != null && permissions.contains(Permissions.WRITE)) {
+                            if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
+                                chatList.add(chat)
+                            } else {
+                                chatList.add(0, chat)
+                            }
+                        }
                     }
                 }
             }
@@ -91,7 +102,12 @@ class AdvChoosePlatform(
                     +Button(
                         ButtonType.CALLBACK,
                         "${chat.title} (${chat.participantsCount} ₽)",
-                        payload = Payloads.WIP
+                        payload = PayPostingState(
+                            timestamp,
+                            advertId,
+                            chat.chatId.id,
+                            chat.participantsCount
+                        ).toPayload().toJson()
                     )
                 }
             }

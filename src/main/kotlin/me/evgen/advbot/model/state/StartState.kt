@@ -9,6 +9,8 @@ import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.advert.MenuAdvertState
+import me.evgen.advbot.model.state.platform.PlatformListState
 
 class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, CustomCommandState {
 

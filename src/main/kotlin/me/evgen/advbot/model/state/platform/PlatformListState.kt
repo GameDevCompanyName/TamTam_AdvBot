@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.platform
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -10,9 +10,13 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserIdLong
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.StartState
 import me.evgen.advbot.service.PlatformService
 
-class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackState {
+class PlatformListState(timestamp: Long) : BaseState(timestamp),
+    CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
         requestsManager: RequestsManager
@@ -47,7 +51,10 @@ class PlatformListState(timestamp: Long) : BaseState(timestamp), CustomCallbackS
                         entry.title,
                         payload = Payload(
                             PlatformSettingsState::class,
-                            PlatformSettingsState(timestamp, entry.chatId.id).toJson()
+                            PlatformSettingsState(
+                                timestamp,
+                                entry.chatId.id
+                            ).toJson()
                         ).toJson()
                     )
                 }
