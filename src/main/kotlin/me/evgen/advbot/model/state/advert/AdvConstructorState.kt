@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -13,6 +13,9 @@ import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.CustomMessageState
 import me.evgen.advbot.service.AdvertService
 
 class AdvConstructorState(
@@ -55,7 +58,11 @@ class AdvConstructorState(
             keyboard = keyboard {
                 +buttonRow {
                     +CallbackButton.RELOAD.create(
-                        AdvConstructorState(timestamp, advertId, isCreatingAdvert).toPayload()
+                        AdvConstructorState(
+                            timestamp,
+                            advertId,
+                            isCreatingAdvert
+                        ).toPayload()
                     )
                 }
             }
@@ -72,7 +79,11 @@ class AdvConstructorState(
                     "Настройка названия ${Emoji.PENCIL}",
                     payload = Payload(
                         AdvTitlingState::class,
-                        AdvTitlingState(timestamp, advertId, isCreatingAdvert).toJson()
+                        AdvTitlingState(
+                            timestamp,
+                            advertId,
+                            isCreatingAdvert
+                        ).toJson()
                     ).toJson()
                 )
             }
@@ -82,7 +93,11 @@ class AdvConstructorState(
                     "Настройка текста ${Emoji.TEXT}",
                     payload = Payload(
                         AdvTextingState::class,
-                        AdvTextingState(timestamp, advertId, isCreatingAdvert).toJson()
+                        AdvTextingState(
+                            timestamp,
+                            advertId,
+                            isCreatingAdvert
+                        ).toJson()
                     ).toJson()
                 )
             }

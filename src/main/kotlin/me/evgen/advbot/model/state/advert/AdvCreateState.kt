@@ -1,4 +1,4 @@
-package me.evgen.advbot.model.state
+package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
@@ -10,6 +10,9 @@ import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
 import me.evgen.advbot.model.entity.Advert
+import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.model.state.CustomCallbackState
+import me.evgen.advbot.model.state.MessageListener
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.UserService
 
@@ -31,7 +34,11 @@ class AdvCreateState(timestamp: Long) : BaseState(timestamp), CustomCallbackStat
         )
         val id = AdvertService.addAdvert(newAdvert)
         if (id != null) {
-            val newState = AdvConstructorState(timestamp, id, isCreatingAdvert = true)
+            val newState = AdvConstructorState(
+                timestamp,
+                id,
+                isCreatingAdvert = true
+            )
             BotController.moveTo(newState, messageState.getUserId().id) {
                 newState.handle(messageState, requestsManager)
             }

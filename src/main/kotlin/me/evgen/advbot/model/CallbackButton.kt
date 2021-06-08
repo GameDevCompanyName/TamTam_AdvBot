@@ -11,6 +11,7 @@ enum class CallbackButton(private val title: String, private val intent: ButtonI
     BACK("${Emoji.BACK} Назад"),
     DEFAULT_CANCEL("${Emoji.CANCEL} Отмена"),
     RELOAD("${Emoji.RELOAD} Обновить"),
+    REPEAT("Повторить"),
     EMPTY("_");
 
     fun create(payload: String): Button {
