@@ -10,11 +10,11 @@ import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.getBackButton
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.entity.IPlatform
-import me.evgen.advbot.model.Tags
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.PlatformService
+import me.evgen.advbot.service.TagService
 
 class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : BaseState(timestamp),
     CustomCallbackState {
@@ -42,11 +42,11 @@ class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : Bas
 
     private fun createKeyboard(adPlatform: IPlatform): InlineKeyboard {
         return keyboard {
-            for (entry in Tags.getAllTags()) {
+            for (entry in TagService.getAllTags()) {
                 +buttonRow {
                     +Button(
                         ButtonType.CALLBACK,
-                        entry,
+                        entry.name,
                         if (adPlatform.tags.contains(entry)) {
                             ButtonIntent.POSITIVE
                         } else {
@@ -57,7 +57,7 @@ class TagSelectionPlatformState(timestamp: Long, private val chatId: Long) : Bas
                             TagSwitchPlatformState(
                                 timestamp,
                                 chatId,
-                                entry
+                                entry.id
                             ).toJson()
                         ).toJson()
 

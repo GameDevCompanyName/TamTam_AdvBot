@@ -39,14 +39,17 @@ object PlatformService {
         return platformDao.findPlatform(chatId)
     }
 
-    fun tagSwitchPlatform(platform: IPlatform, tag: String) {
-        platform.apply {
-            if (!tags.contains(tag)) {
-                tags.add(tag)
-            } else tags.remove(tag)
-        }
+    fun tagSwitchPlatform(platform: IPlatform, tagId: Long) {
+        val tag = tagDao.findTag(tagId)
+        if (tag != null) {
+            platform.apply {
+                if (!tags.contains(tag)) {
+                    tags.add(tag)
+                } else tags.remove(tag)
+            }
 
-        platformDao.update(platform)
+            platformDao.update(platform)
+        }
     }
 
     fun getAllPlatforms(): List<IPlatform> {

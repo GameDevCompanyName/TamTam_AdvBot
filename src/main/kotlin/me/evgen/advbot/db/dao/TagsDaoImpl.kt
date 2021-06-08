@@ -10,8 +10,4 @@ class TagsDaoImpl: TagsDao<Tag>() {
     override fun findAllTags(): List<Tag> {
         return findAll<Tag>().toList()
     }
-
-    override fun findTagByName(name: String): Tag? {
-
-    }
 }

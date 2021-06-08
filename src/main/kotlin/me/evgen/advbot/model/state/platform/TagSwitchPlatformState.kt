@@ -8,7 +8,7 @@ import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.PlatformService
 
-class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private val tag: String) : BaseState(timestamp),
+class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private val tagId: Long) : BaseState(timestamp),
     CustomCallbackState {
     override suspend fun handle(
         callbackState: CallbackState,
@@ -20,7 +20,7 @@ class TagSwitchPlatformState(timestamp: Long, private val chatId: Long, private 
             return
         }
 
-        PlatformService.tagSwitchPlatform(adPlatform, tag)
+        PlatformService.tagSwitchPlatform(adPlatform, tagId)
 
         "Тег успешно изменен".answerNotification(
             callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
