@@ -7,7 +7,7 @@ import chat.tamtam.botsdk.model.prepared.Chat
 interface IPlatform {
 
     var id: Long
-    var tags: MutableSet<String>
+    var tags: MutableSet<Tag>
     var availability: Boolean
     var user: User
 

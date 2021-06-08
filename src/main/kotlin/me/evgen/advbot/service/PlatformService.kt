@@ -1,6 +1,7 @@
 package me.evgen.advbot.service
 
 import me.evgen.advbot.db.dao.PlatformDaoImpl
+import me.evgen.advbot.db.dao.TagsDaoImpl
 import me.evgen.advbot.db.dao.UserDaoImpl
 import me.evgen.advbot.model.entity.IPlatform
 import me.evgen.advbot.model.entity.Platform
@@ -10,6 +11,7 @@ import me.evgen.advbot.model.state.WelcomeState
 object PlatformService {
     private val platformDao = PlatformDaoImpl()
     private val userDao = UserDaoImpl()
+    private val tagDao = TagsDaoImpl()
 
     fun hasMorePlatformsForPosting(
         anchorId: Long,
