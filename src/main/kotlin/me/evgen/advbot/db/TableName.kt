@@ -6,4 +6,5 @@ object TableName {
     const val PLATFORM = "platform"
     const val TAG = "tag"
     const val PLATFORM_TAG = "platform_tag"
+    const val ADVERT_TAG = "advert_tag"
 }

@@ -112,7 +112,12 @@ class AdvConstructorState(
                 +Button(
                     ButtonType.CALLBACK,
                     "Настройка тегов ${Emoji.TAG}",
-                    payload = Payloads.WIP
+                    payload = Payload(
+                        TagSelectionAdvertState::class,
+                        TagSelectionAdvertState(
+                            timestamp, advertId
+                        ).toJson()
+                    ).toJson()
                 )
             }
             +buttonRow {
