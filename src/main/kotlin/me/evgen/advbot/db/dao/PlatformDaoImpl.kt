@@ -2,6 +2,7 @@ package me.evgen.advbot.db.dao
 
 import me.evgen.advbot.model.entity.IPlatform
 import me.evgen.advbot.model.entity.Platform
+import me.evgen.advbot.model.entity.Tag
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
 
@@ -64,5 +65,9 @@ class PlatformDaoImpl : PlatformDao<IPlatform>() {
         }
 
         return result
+    }
+
+    override fun findAllPlatformsByTags(tags: Set<Tag>): List<IPlatform> {
+        return findAllPlatforms().filter{platform -> platform.tags.any{tag -> tags.contains(tag)}}
     }
 }
