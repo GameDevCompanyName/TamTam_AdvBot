@@ -5,6 +5,7 @@ import me.evgen.advbot.db.dao.TagsDaoImpl
 import me.evgen.advbot.db.dao.UserDaoImpl
 import me.evgen.advbot.model.entity.IPlatform
 import me.evgen.advbot.model.entity.Platform
+import me.evgen.advbot.model.entity.Tag
 import me.evgen.advbot.model.entity.User
 import me.evgen.advbot.model.state.WelcomeState
 
@@ -52,8 +53,8 @@ object PlatformService {
         }
     }
 
-    fun getAllPlatforms(): List<IPlatform> {
-        return platformDao.findAllPlatforms()
+    fun getAllPlatformsByTags(tags: Set<Tag>): List<IPlatform> {
+        return platformDao.findAllPlatformsByTags(tags)
     }
 
     fun accessSwitch(platform: IPlatform) {
