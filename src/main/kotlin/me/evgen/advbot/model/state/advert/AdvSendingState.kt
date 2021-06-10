@@ -23,7 +23,7 @@ class AdvSendingState(
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val advert = AdvertService.findAdvert(advertId)
         if (advert != null) {
-            "${advert.text}${botText()}".sendTo(ChatId(chatId), requestsManager)
+            "${advert.text}${botText()}".sendThroughTech(ChatId(chatId), requestsManager)
 
             "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
                 callbackState.getUserId(),

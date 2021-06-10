@@ -14,7 +14,7 @@ import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.UserService
 
 fun main() {
-    longPolling(LongPollingStartingParams("zt3s6WN91gQPETrvrhL9_4v172am8fOlHBqH5d92kZY")) {
+    longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
 
         onStartBot {
             WelcomeState(System.currentTimeMillis()).handle(it, requests)
