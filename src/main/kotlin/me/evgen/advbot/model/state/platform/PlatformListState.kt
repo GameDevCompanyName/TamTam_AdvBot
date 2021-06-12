@@ -13,6 +13,7 @@ import me.evgen.advbot.getUserIdLong
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.model.state.StartState
+import me.evgen.advbot.model.state.advert.MenuPlatformState
 import me.evgen.advbot.service.PlatformService
 
 class PlatformListState(timestamp: Long) : BaseState(timestamp),
@@ -62,7 +63,7 @@ class PlatformListState(timestamp: Long) : BaseState(timestamp),
             +buttonRow {
                 +getBackButton(
                     Payload(
-                        StartState::class, StartState(
+                        MenuPlatformState::class, MenuPlatformState(
                             timestamp
                         ).toJson()
                     )

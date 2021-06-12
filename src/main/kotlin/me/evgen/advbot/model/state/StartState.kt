@@ -10,6 +10,7 @@ import chat.tamtam.botsdk.state.CommandState
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.advert.MenuAdvertState
+import me.evgen.advbot.model.state.advert.MenuPlatformState
 import me.evgen.advbot.model.state.platform.PlatformListState
 
 class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, CustomCommandState {
@@ -43,8 +44,8 @@ class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, C
                     ButtonType.CALLBACK,
                     "Предоставить площадку",
                     payload = Payload(
-                        PlatformListState::class,
-                        PlatformListState(this@StartState.timestamp)
+                        MenuPlatformState::class,
+                        MenuPlatformState(this@StartState.timestamp)
                             .toJson()
                     ).toJson()
                 )
