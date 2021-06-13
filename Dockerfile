@@ -1,4 +1,4 @@
-FROM gradle:4.10-jdk11 AS build
+FROM gradle:6.1.1-jdk11 AS build
 WORKDIR /src
 COPY build.gradle.kts .
 COPY src ./src/
