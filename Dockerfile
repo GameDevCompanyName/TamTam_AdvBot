@@ -1,6 +1,8 @@
 FROM gradle:6.1.1-jdk11 AS build
 WORKDIR /src
 COPY build.gradle.kts .
+COPY gradle.properties .
+COPY settings.gradle.kts .
 COPY src ./src/
 USER root
 RUN gradle shadowJar --no-daemon
