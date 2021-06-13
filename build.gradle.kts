@@ -4,6 +4,7 @@ import java.net.URI
 plugins {
     kotlin("jvm") version "1.3.50"
     id("org.flywaydb.flyway") version "7.8.1"
+    id("com.github.johnrengelman.shadow") version "5.2.0"
 }
 
 group = "me.evgen"
@@ -15,6 +16,15 @@ repositories {
     maven { url = URI("https://plugins.gradle.org/m2/") }
     jcenter()
     maven { url = URI("https://oss.jfrog.org//artifactory/oss-snapshot-local") }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath("com.github.jengelman.gradle.plugins:shadow:5.2.0")
+    }
 }
 
 dependencies {
@@ -55,4 +65,16 @@ flyway {
     url = project.property("db.url").toString()
     user = project.property("db.user").toString()
     password = project.property("db.password").toString()
+}
+
+tasks {
+    named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
+        archiveBaseName.set("AdvBot")
+        classifier = null
+        version = null
+        mergeServiceFiles()
+        manifest {
+            attributes(mapOf("Main-Class" to "me.evgen.advbot.BotLogicKt"))
+        }
+    }
 }
