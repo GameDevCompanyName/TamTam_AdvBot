@@ -14,6 +14,7 @@ import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.AdvertService
+import me.evgen.advbot.service.PlatformsForPostingArgs
 
 class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestamp),
     CustomCallbackState {
@@ -65,8 +66,7 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                     intent = ButtonIntent.POSITIVE,
                     payload = AdvChoosePlatform(
                         timestamp,
-                        advertId,
-                        true
+                        PlatformsForPostingArgs(advertId)
                     ).toPayload().toJson()
                 )
             }

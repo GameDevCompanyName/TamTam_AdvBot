@@ -19,8 +19,8 @@ class Advert() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = -1
-    lateinit var title: String
-    lateinit var text: String
+    var title: String = ""
+    var text: String = ""
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "${TableName.USER}_id")

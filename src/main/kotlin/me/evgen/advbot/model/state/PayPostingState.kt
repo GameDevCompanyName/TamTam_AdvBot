@@ -18,6 +18,7 @@ import me.evgen.advbot.model.payment.PaymentStatusEvent
 import me.evgen.advbot.model.state.advert.AdvChoosePlatform
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.PlatformService
+import me.evgen.advbot.service.PlatformsForPostingArgs
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 
@@ -76,7 +77,7 @@ class PayPostingState(
         return keyboard {
             +buttonRow {
                 +CallbackButton.BACK.create( //TODO надо возвращать на ту же страницу где он был, а не в начало
-                    AdvChoosePlatform(timestamp, advertId, true).toPayload()
+                    AdvChoosePlatform(timestamp, PlatformsForPostingArgs(advertId)).toPayload()
                 )
                 +Button(
                     ButtonType.LINK,

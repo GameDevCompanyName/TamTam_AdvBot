@@ -17,30 +17,24 @@ import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.model.state.PayPostingState
 import me.evgen.advbot.service.PlatformService
+import me.evgen.advbot.service.PlatformsForPostingArgs
 
 class AdvChoosePlatform(
     timestamp: Long,
-    private val advertId: Long,
-    private val isForward: Boolean,
-    private val anchorId: Long = -1,
-    private val pageNum: Int = 1
+    private val args: PlatformsForPostingArgs
 ) : BaseState(timestamp), CustomCallbackState {
-
-    companion object {
-        private const val QUANTITY_PLATFORM_ON_PAGE = 2
-    }
 
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         var isPlatformListEmpty = false
         val chatList: MutableList<Chat> = mutableListOf()
-        var tempAnchorId: Long = anchorId
-        var tempQuantity = QUANTITY_PLATFORM_ON_PAGE
+        var tempAnchorId: Long = args.anchorPlatformId
+        var tempQuantity = args.quantity
         do {
             val platformList = PlatformService.getPlatformsForPosting(
                 tempAnchorId,
                 tempQuantity,
-                isForward,
-                advertId
+                args.isForward,
+                args.advertId
             )
             for (p in platformList) {
                 val chat = p.getChatFromServer(requestsManager)
@@ -49,7 +43,7 @@ class AdvChoosePlatform(
                     if (chatMember is ResultRequest.Success) {
                         val permissions =  chatMember.response.permissions
                         if (permissions != null && permissions.contains(Permissions.WRITE)) {
-                            if (isForward || tempQuantity == QUANTITY_PLATFORM_ON_PAGE) {
+                            if (args.isForward || tempQuantity == args.quantity) {
                                 chatList.add(chat)
                             } else {
                                 chatList.add(0, chat)
@@ -59,7 +53,7 @@ class AdvChoosePlatform(
                 }
             }
             if (platformList.isNotEmpty()) {
-                tempAnchorId = if (isForward) {
+                tempAnchorId = if (args.isForward) {
                     platformList.last().id
                 } else {
                     platformList.first().id
@@ -67,12 +61,12 @@ class AdvChoosePlatform(
             } else {
                 isPlatformListEmpty = true
             }
-            tempQuantity = QUANTITY_PLATFORM_ON_PAGE - chatList.size
-        } while (chatList.size != QUANTITY_PLATFORM_ON_PAGE && platformList.isNotEmpty())
+            tempQuantity = args.quantity - chatList.size
+        } while (chatList.size != args.quantity && platformList.isNotEmpty())
 
-        val hasMoreForward = !isPlatformListEmpty && (chatList.size < QUANTITY_PLATFORM_ON_PAGE
+        val hasMoreForward = !isPlatformListEmpty && (chatList.size < args.quantity
                 || (chatList.isNotEmpty()
-                    && PlatformService.hasMorePlatformsForPosting(chatList.last().chatId.id, 1, true, advertId)))
+                    && PlatformService.hasMorePlatformsForPosting(chatList.last().chatId.id, 1, true, args.advertId)))
 
         val keyboard = createKeyboard(
             chatList,
@@ -81,7 +75,7 @@ class AdvChoosePlatform(
             hasMoreForward
         )
 
-        """Страница №${pageNum}
+        """Страница №${args.pageNum}
         |Выберите платформу для публикации:""".trimMargin()
             .sendToUserWithKeyboard(
                 callbackState.getUserId(),
@@ -92,8 +86,8 @@ class AdvChoosePlatform(
 
     private fun createKeyboard(
         chatList: List<Chat>,
-        firstAnchorId: Long,
-        lastAnchorId: Long,
+        firstAnchorPlatformId: Long,
+        lastAnchorPlatformId: Long,
         hasMoreForward: Boolean): InlineKeyboard {
 
         return keyboard {
@@ -104,7 +98,7 @@ class AdvChoosePlatform(
                         "${chat.title} (${chat.participantsCount} ₽)",
                         payload = PayPostingState(
                             timestamp,
-                            advertId,
+                            args.advertId,
                             chat.chatId.id,
                             chat.participantsCount
                         ).toPayload().toJson()
@@ -113,34 +107,28 @@ class AdvChoosePlatform(
             }
 
             +buttonRow {
-                if (pageNum > 1 && firstAnchorId != -1L) {
+                if (args.pageNum > 1 && firstAnchorPlatformId != -1L) {
                     +Button(
                         ButtonType.CALLBACK,
-                        "${Emoji.PREVIOUS_PAGE} Страница №${pageNum - 1}",
+                        "${Emoji.PREVIOUS_PAGE} Страница №${args.pageNum - 1}",
                         payload = AdvChoosePlatform(
                             timestamp,
-                            advertId,
-                            false,
-                            firstAnchorId,
-                            pageNum - 1
+                            args.previous(firstAnchorPlatformId)
                         ).toPayload().toJson()
                     )
                 } else {
                     +CallbackButton.EMPTY.create(Payloads.EMPTY)
                 }
                 +CallbackButton.DEFAULT_CANCEL.create(
-                    AdvState(timestamp, advertId).toPayload()
+                    AdvState(timestamp, args.advertId).toPayload()
                 )
-                if (hasMoreForward && lastAnchorId != -1L) {
+                if (hasMoreForward && lastAnchorPlatformId != -1L) {
                     +Button(
                         ButtonType.CALLBACK,
-                        "Страница №${pageNum + 1} ${Emoji.NEXT_PAGE}",
+                        "Страница №${args.pageNum + 1} ${Emoji.NEXT_PAGE}",
                         payload = AdvChoosePlatform(
                             timestamp,
-                            advertId,
-                            true,
-                            lastAnchorId,
-                            pageNum + 1
+                            args.next(lastAnchorPlatformId)
                         ).toPayload().toJson()
                     )
                 } else {
