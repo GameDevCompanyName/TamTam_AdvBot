@@ -1,35 +1,28 @@
 package me.evgen.advbot.model.state
 
 import chat.tamtam.botsdk.client.RequestsManager
+import chat.tamtam.botsdk.client.ResultRequest
 import chat.tamtam.botsdk.model.AttachType
 import chat.tamtam.botsdk.model.CallbackId
+import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.UserId
-import chat.tamtam.botsdk.model.request.AnswerCallback
-import chat.tamtam.botsdk.model.request.AttachmentKeyboard
-import chat.tamtam.botsdk.model.request.EMPTY_INLINE_KEYBOARD
-import chat.tamtam.botsdk.model.request.InlineKeyboard
-import chat.tamtam.botsdk.model.request.SendMessage
+import chat.tamtam.botsdk.model.request.*
+import chat.tamtam.botsdk.model.response.LinkType
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
 import chat.tamtam.botsdk.state.MessageState
+import chat.tamtam.botsdk.state.StartedBotState
 import com.google.gson.Gson
-import me.evgen.advbot.BotController
 import me.evgen.advbot.model.navigation.Payload
 
 abstract class BaseState(var timestamp: Long) {
+    private val techChannelId = -78551009460407
 
-    fun getOrDefaultPayload(state: BaseState?): Payload {
-        return if (state == null) {
-            Payload(
-                StartState::class,
-                StartState(System.currentTimeMillis()).toJson()
-            )
-        } else {
-            Payload(
-                state::class,
-                state.apply { timestamp = this@BaseState.timestamp }.toJson()
-            )
-        }
+    fun toPayload(): Payload {
+        return Payload(
+            this::class,
+            toJson()
+        )
     }
 
     fun toJson(): String {
@@ -37,6 +30,8 @@ abstract class BaseState(var timestamp: Long) {
     }
 
     suspend fun String.sendTo(userId: UserId, requestsManager: RequestsManager) = requestsManager.send(userId, SendMessage(this))
+
+    suspend fun String.sendTo(chatId: ChatId, requestsManager: RequestsManager) = requestsManager.send(chatId, SendMessage(this))
 
     suspend fun String.sendToUserWithKeyboard(userId: UserId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
         val attaches = if (inlineKeyboard == EMPTY_INLINE_KEYBOARD) {
@@ -58,16 +53,28 @@ abstract class BaseState(var timestamp: Long) {
         val answerCallback = AnswerCallback(userId = userId.id, notification = this)
         requestsManager.answer(callbackId, answerCallback)
     }
-}
 
-interface CustomCommandState {
-    suspend fun handle(commandState: CommandState, prevState: BaseState, requestsManager: RequestsManager) {
-        BotController.tempAdMap.remove(commandState.command.message.sender)
+    suspend fun String.sendThroughTech(chatId: ChatId, requestsManager: RequestsManager) {
+        when (val res = requestsManager.send(ChatId(techChannelId), SendMessage(this))) {
+            is ResultRequest.Success -> {
+                requestsManager.send(chatId, SendMessage("", emptyList(), true, LinkOnMessage(LinkType.FORWARD, res.response.body.messageId)))
+            }
+        }
     }
 }
 
+interface CustomCommandState {
+    suspend fun handle(
+        commandState: CommandState,
+        requestsManager: RequestsManager
+    )
+}
+
 interface CustomCallbackState {
-    suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager)
+    suspend fun handle(
+        callbackState: CallbackState,
+        requestsManager: RequestsManager
+    )
 }
 
 interface CustomMessageState {
@@ -75,6 +82,10 @@ interface CustomMessageState {
         messageState: MessageState,
         requestsManager: RequestsManager
     )
+}
+
+interface CustomStartedBotState {
+    suspend fun handle(startedBotState: StartedBotState, requestsManager: RequestsManager)
 }
 
 interface MessageListener {

@@ -2,7 +2,6 @@ package me.evgen.advbot
 
 import chat.tamtam.botsdk.keyboard.keyboard
 import chat.tamtam.botsdk.model.Button
-import chat.tamtam.botsdk.model.ButtonIntent
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.UserId
 import chat.tamtam.botsdk.model.prepared.User
@@ -16,8 +15,8 @@ import chat.tamtam.botsdk.state.RemovedBotState
 import chat.tamtam.botsdk.state.RemovedUserState
 import chat.tamtam.botsdk.state.StartedBotState
 import chat.tamtam.botsdk.state.UpdateState
+import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.navigation.Payload
-import me.evgen.advbot.model.TempAdvert
 
 fun UpdateState.getUserId(): UserId {
     return when (this) {
@@ -29,6 +28,19 @@ fun UpdateState.getUserId(): UserId {
         is RemovedBotState -> this.user.userId
         is AddedUserState -> this.user.userId
         is RemovedUserState -> this.user.userId
+    }
+}
+
+fun UpdateState.getUserIdLong(): Long {
+    return when (this) {
+        is CommandState -> this.command.message.sender.userId.id
+        is CallbackState -> this.callback.user.userId.id
+        is MessageState -> this.message.sender.userId.id
+        is StartedBotState -> this.user.userId.id
+        is AddedBotState -> this.user.userId.id
+        is RemovedBotState -> this.user.userId.id
+        is AddedUserState -> this.user.userId.id
+        is RemovedUserState -> this.user.userId.id
     }
 }
 
@@ -48,49 +60,20 @@ fun UpdateState.getUser(): User {
 fun createCancelKeyboard(payload: Payload): InlineKeyboard {
     return keyboard {
         +buttonRow {
-            +getCancelButton(payload)
+            +CallbackButton.DEFAULT_CANCEL.create(payload)
         }
     }
 }
 
-fun createBackKeyboard(payload: Payload): InlineKeyboard {
-    return keyboard {
-        +buttonRow {
-            +getBackButton(payload)
-        }
-    }
-}
-
+@Deprecated(message = "Use me.evgen.advbot.model.CallbackButton.BACK")
 fun getBackButton(payload: Payload): Button {
-    return Button(
-        ButtonType.CALLBACK,
-        "⬅ Назад",
-        payload = payload.toJson()
-    )
+    return getButton("⬅ Назад", payload)
 }
 
-fun getDoneButton(payload: Payload): Button {
+private fun getButton(title: String, payload: Payload): Button {
     return Button(
         ButtonType.CALLBACK,
-        "Готово ✅",
-        intent = ButtonIntent.POSITIVE,
+        title,
         payload = payload.toJson()
     )
-}
-
-fun getCancelButton(payload: Payload, needNegativeIntent: Boolean = false): Button {
-    return if (needNegativeIntent) {
-        Button(
-            ButtonType.CALLBACK,
-            "❌ Отмена",
-            payload = payload.toJson(),
-            intent = ButtonIntent.NEGATIVE
-        )
-    } else {
-        Button(
-            ButtonType.CALLBACK,
-            "❌ Отмена",
-            payload = payload.toJson()
-        )
-    }
 }

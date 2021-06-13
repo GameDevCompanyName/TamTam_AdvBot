@@ -1,36 +1,45 @@
 package me.evgen.advbot
 
-import chat.tamtam.botsdk.model.prepared.User
-import me.evgen.advbot.model.TempAdvert
 import me.evgen.advbot.model.state.BaseState
+import me.evgen.advbot.service.UserService
+import java.beans.PropertyChangeListener
+import java.beans.PropertyChangeSupport
 import java.lang.Exception
 
 object BotController {
-    private val statesMap = mutableMapOf<User, BaseState>()
-    // на этапе создания реклама лежит в этой мапе, после нажатия на "готово" сохраняется в базку
-    val tempAdMap = mutableMapOf<User, TempAdvert>()
 
-    suspend fun moveTo(newState: BaseState, user: User, isForce: Boolean = false, onSuccess: suspend (BaseState) -> Unit) {
-        var oldState = getCurrentState(user)
-        if (isForce) {
-            statesMap[user] = newState
-            if (oldState == null) {
+    val paymentSupport = PropertyChangeSupport(this::class.java.simpleName)
+
+    suspend fun moveTo(newState: BaseState, userId: Long, isForce: Boolean = false, onSuccess: suspend (BaseState) -> Unit) {
+        val user = UserService.findUser(userId) ?: return
+        var oldState = if (!isForce) user.getState() else null
+        when {
+            isForce -> {
                 oldState = newState
             }
-        } else if (oldState != null && oldState.timestamp == newState.timestamp) {
-            newState.timestamp = System.currentTimeMillis()
-            statesMap[user] = newState
-        } else {
-            return
+            oldState?.timestamp == newState.timestamp -> {
+                newState.timestamp = System.currentTimeMillis()
+            }
+            else -> {
+                return
+            }
         }
 
         try {
+            user.payload = newState.toPayload().toJson()
+            UserService.updateUser(user)
+
+            if (newState is PropertyChangeListener) {
+                paymentSupport.addPropertyChangeListener(newState)
+            }
+            if (oldState is PropertyChangeListener) {
+                paymentSupport.removePropertyChangeListener(oldState)
+            }
+
             onSuccess.invoke(oldState)
         } catch (e: Exception) {
-            println(e.localizedMessage)
+            e.printStackTrace()
             //TODO norm log
         }
     }
-
-    fun getCurrentState(user: User): BaseState? = statesMap[user]
 }

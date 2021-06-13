@@ -9,23 +9,24 @@ import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.CommandState
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.navigation.Payload
+import me.evgen.advbot.model.state.advert.MenuAdvertState
+import me.evgen.advbot.model.state.advert.MenuPlatformState
+import me.evgen.advbot.model.state.platform.PlatformListState
 
 class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, CustomCommandState {
 
-    override suspend fun handle(callbackState: CallbackState, prevState: BaseState, requestsManager: RequestsManager) {
+    override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val inlineKeyboard = createKeyboard()
 
         "Выберите один из предложенных вариантов:".answerWithKeyboard(callbackState.callback.callbackId, inlineKeyboard, requestsManager)
     }
 
-    override suspend fun handle(commandState: CommandState, prevState: BaseState, requestsManager: RequestsManager) {
-        super.handle(commandState, prevState, requestsManager)
-
+    override suspend fun handle(commandState: CommandState, requestsManager: RequestsManager) {
         val userId = commandState.getUserId()
         val inlineKeyboard = createKeyboard()
 
-        "Вы можете разместить рекламу или предоставить площадку для ее размещения".sendTo(userId, requestsManager)
-        "Выберите один из предложенных вариантов:".sendToUserWithKeyboard(userId, inlineKeyboard, requestsManager)
+        "Вы можете разместить рекламу или предоставить площадку для ее размещения."
+            .sendToUserWithKeyboard(userId, inlineKeyboard, requestsManager)
     }
 
     private fun createKeyboard(): InlineKeyboard {
@@ -43,8 +44,8 @@ class StartState(timestamp: Long) : BaseState(timestamp), CustomCallbackState, C
                     ButtonType.CALLBACK,
                     "Предоставить площадку",
                     payload = Payload(
-                        PlatformState::class,
-                        PlatformState(this@StartState.timestamp)
+                        MenuPlatformState::class,
+                        MenuPlatformState(this@StartState.timestamp)
                             .toJson()
                     ).toJson()
                 )
