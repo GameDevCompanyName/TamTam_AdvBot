@@ -12,6 +12,7 @@ import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
+import me.evgen.advbot.model.entity.Tag
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
@@ -29,7 +30,7 @@ class AdvConstructorState(
         if (!isCreatingAdvert) {
             val advert = AdvertService.findAdvert(advertId)
             if (advert != null) {
-                message = createMessage(advert.title, advert.text)
+                message = createMessage(advert.title, advert.text, advert.tags)
             }
         }
 
@@ -51,7 +52,7 @@ class AdvConstructorState(
         val message: String
         val keyboard: InlineKeyboard
         if (advert != null) {
-            message = createMessage(advert.title, advert.text)
+            message = createMessage(advert.title, advert.text, advert.tags)
             keyboard = createKeyboard()
         } else {
             message = ErrorType.EDIT_ADVERT.errorMessage
@@ -141,7 +142,7 @@ class AdvConstructorState(
         }
     }
 
-    private fun createMessage(title: String, text: String): String {
+    private fun createMessage(title: String, text: String, tags: Set<Tag>): String {
         val tempTitle = """Текущее название рекламы:
         |$title""".trimMargin()
         val tempText = if (text.isBlank()) {
@@ -150,8 +151,18 @@ class AdvConstructorState(
             """Текущий текст рекламы:
         |$text""".trimMargin()
         }
+        val tagsText = if (tags.isEmpty()) {
+            "Тегов нет."
+        } else {
+            """Тэги:
+            |${tags.joinToString("\n|") { it.name }}
+            """.trimMargin()
+        }
 
         return """$tempTitle
-        |$tempText""".trimMargin()
+            |
+        |$tempText
+        |
+        |$tagsText""".trimMargin()
     }
 }
