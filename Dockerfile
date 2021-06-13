@@ -1,11 +1,11 @@
-FROM gradle:6.1.1-jdk15 AS build
+FROM gradle:4.10-jdk11 AS build
 WORKDIR /src
-COPY build.gradle .
+COPY build.gradle.kts .
 COPY src ./src/
 USER root
 RUN gradle shadowJar --no-daemon
 
-FROM openjdk:15-jre
+FROM openjdk:11-jre
 
 EXPOSE 8080
 
