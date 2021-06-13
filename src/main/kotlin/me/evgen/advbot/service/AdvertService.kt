@@ -3,7 +3,6 @@ package me.evgen.advbot.service
 import me.evgen.advbot.db.dao.AdvertDaoImpl
 import me.evgen.advbot.db.dao.TagsDaoImpl
 import me.evgen.advbot.model.entity.Advert
-import me.evgen.advbot.model.entity.IPlatform
 
 object AdvertService {
 

@@ -13,8 +13,33 @@ import me.evgen.advbot.model.state.*
 import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.UserService
 
+import io.javalin.Javalin
+import me.evgen.advbot.model.payment.PaymentMapping
+import me.evgen.advbot.model.payment.PaymentStatusEvent
+import java.beans.PropertyChangeEvent
+
 fun main() {
-    longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
+    longPolling(LongPollingStartingParams("dg370Ox_HsEK3qPYlhpc-2NZqU4yAGmoa9U_B5ImxHs")) {
+
+        Javalin.create().start(8080).apply {
+            get(PaymentMapping.PAY_SUCCESS) {
+                BotController.paymentSupport.firePropertyChange(
+                    PropertyChangeEvent(
+                        "BotLogic",
+                        PaymentStatusEvent.PROPERTY_NAME,
+                        null,
+                        PaymentStatusEvent(
+                            true,
+                            1, //TODO нужно передавать правильный айди юзера
+                            requests
+                        )
+                    )
+                )
+            }
+            get(PaymentMapping.PAY_ERROR) {
+                //TODO
+            }
+        }
 
         onStartBot {
             WelcomeState(System.currentTimeMillis()).handle(it, requests)

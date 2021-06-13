@@ -37,6 +37,10 @@ dependencies {
     implementation("org.hibernate:hibernate-core:5.4.31.Final")
 
     implementation("com.google.code.gson:gson:2.8.6")
+
+    implementation("io.javalin:javalin:3.13.7")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0")
 }
 
 tasks.test {
