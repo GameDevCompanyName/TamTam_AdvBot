@@ -65,8 +65,12 @@ class AdvConstructorState(
         val advert = AdvertService.findAdvert(advertId)
         val message: String
         val keyboard: InlineKeyboard
+        val attaches = mutableListOf<AttachmentContract>()
         if (advert != null) {
             message = createMessage(advert.title, advert.text, advert.tags)
+            if (advert.mediaUrl.isNotEmpty()) {
+                attaches.add(AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl)))
+            }
             keyboard = createKeyboard()
         } else {
             message = ErrorType.EDIT_ADVERT.errorMessage
@@ -83,7 +87,10 @@ class AdvConstructorState(
             }
         }
 
-        message.sendToUserWithKeyboard(messageState.getUserId(), keyboard, requestsManager)
+        message.sendToUserWithKeyboardAndAttachments(messageState.getUserId(),
+            keyboard,
+            attaches,
+            requestsManager)
     }
 
     private fun createKeyboard(): InlineKeyboard {
