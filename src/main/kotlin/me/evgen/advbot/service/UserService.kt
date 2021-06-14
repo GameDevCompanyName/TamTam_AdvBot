@@ -11,8 +11,13 @@ object UserService {
         return userDao.findUser(id)
     }
 
-    fun insertUser(user: User) {
-        userDao.insert(user)
+    fun insertUser(user: User): Long? {
+        val result = userDao.insert(user)
+        return if (result is Long) {
+            result
+        } else {
+            null
+        }
     }
 
     fun updateUser(user: User) {

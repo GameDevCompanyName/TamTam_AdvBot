@@ -58,6 +58,15 @@ abstract class Dao<T> {
         return result
     }
 
+    protected inline fun <reified T> find(id: String): T? {
+        var result: T? = null
+        execute {
+            result = it.get(T::class.java, id)
+        }
+
+        return result
+    }
+
     protected inline fun <reified T> findAll(): Collection<T> {
         var result: List<T> = listOf()
         execute {

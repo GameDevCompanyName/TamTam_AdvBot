@@ -1,13 +1,16 @@
 package me.evgen.advbot.service
 
 import me.evgen.advbot.db.dao.AdvertDaoImpl
+import me.evgen.advbot.db.dao.CampaignDaoImpl
 import me.evgen.advbot.db.dao.TagsDaoImpl
 import me.evgen.advbot.model.entity.Advert
+import me.evgen.advbot.model.entity.Campaign
 
 object AdvertService {
 
     private val advertDao = AdvertDaoImpl()
     private val tagDao = TagsDaoImpl()
+    private val campaignDao = CampaignDaoImpl()
 
     fun findAdvert(id: Long): Advert? {
         return advertDao.findAdvert(id)
@@ -44,5 +47,9 @@ object AdvertService {
             }
             advertDao.update(advert)
         }
+    }
+
+    fun addPost(campaign: Campaign) {
+        campaignDao.update(campaign)
     }
 }

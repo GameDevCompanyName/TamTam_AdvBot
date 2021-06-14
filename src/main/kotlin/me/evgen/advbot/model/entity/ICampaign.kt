@@ -6,7 +6,7 @@ import chat.tamtam.botsdk.model.prepared.Message
 interface ICampaign {
 
     var postId: String
-    var adId: Long
+    var advert: Advert
 
     suspend fun getPostFromServer(requestsManager: RequestsManager): Message?
 }

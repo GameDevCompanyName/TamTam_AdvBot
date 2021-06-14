@@ -12,6 +12,7 @@ import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
 import javax.persistence.ManyToOne
 import javax.persistence.Table
+import javax.persistence.Column
 
 @Entity
 @Table(name = TableName.ADVERT)
@@ -21,6 +22,9 @@ class Advert() {
     var id: Long = -1
     var title: String = ""
     var text: String = ""
+
+    @Column(name = "media_url")
+    lateinit var mediaUrl: String
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "${TableName.USER}_id")
@@ -37,6 +41,7 @@ class Advert() {
     constructor(title: String, owner: User) : this () {
         this.title = title
         this.text = ""
+        this.mediaUrl = ""
         this.owner = owner
     }
 }

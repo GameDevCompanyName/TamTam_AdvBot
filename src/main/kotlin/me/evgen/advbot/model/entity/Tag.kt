@@ -7,7 +7,6 @@ import javax.persistence.*
 @Table(name = TableName.TAG)
 class Tag {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = -1
 
     lateinit var name: String

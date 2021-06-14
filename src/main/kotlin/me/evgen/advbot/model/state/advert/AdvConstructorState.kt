@@ -2,9 +2,13 @@ package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
+import chat.tamtam.botsdk.model.AttachType
 import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
+import chat.tamtam.botsdk.model.request.AttachmentContract
+import chat.tamtam.botsdk.model.request.AttachmentPhotoWithUrl
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.request.PayloadUrl
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
 import me.evgen.advbot.Payloads
@@ -12,6 +16,7 @@ import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
+import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.entity.Tag
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
@@ -27,10 +32,14 @@ class AdvConstructorState(
 
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         var message = ErrorType.EDIT_ADVERT.errorMessage
+        val attaches = mutableListOf<AttachmentContract>()
         if (!isCreatingAdvert) {
             val advert = AdvertService.findAdvert(advertId)
             if (advert != null) {
                 message = createMessage(advert.title, advert.text, advert.tags)
+                if (advert.mediaUrl.isNotEmpty()) {
+                    attaches.add(AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl)))
+                }
             }
         }
 
@@ -44,15 +53,24 @@ class AdvConstructorState(
             createKeyboard()
         }
 
-        message.answerWithKeyboard(callbackState.callback.callbackId, keyboard, requestsManager)
+        message.sendToUserWithKeyboardAndAttachments(
+            callbackState.getUserId(),
+            keyboard,
+            attaches,
+            requestsManager
+        )
     }
 
     override suspend fun handle(messageState: MessageState, requestsManager: RequestsManager) {
         val advert = AdvertService.findAdvert(advertId)
         val message: String
         val keyboard: InlineKeyboard
+        val attaches = mutableListOf<AttachmentContract>()
         if (advert != null) {
             message = createMessage(advert.title, advert.text, advert.tags)
+            if (advert.mediaUrl.isNotEmpty()) {
+                attaches.add(AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl)))
+            }
             keyboard = createKeyboard()
         } else {
             message = ErrorType.EDIT_ADVERT.errorMessage
@@ -69,7 +87,10 @@ class AdvConstructorState(
             }
         }
 
-        message.sendToUserWithKeyboard(messageState.getUserId(), keyboard, requestsManager)
+        message.sendToUserWithKeyboardAndAttachments(messageState.getUserId(),
+            keyboard,
+            attaches,
+            requestsManager)
     }
 
     private fun createKeyboard(): InlineKeyboard {
@@ -106,7 +127,14 @@ class AdvConstructorState(
                 +Button(
                     ButtonType.CALLBACK,
                     "Настройка изображения 📺",
-                    payload = Payloads.WIP
+                    payload = Payload(
+                        AdvMediaState::class,
+                        AdvMediaState(
+                            timestamp,
+                            advertId,
+                            isCreatingAdvert
+                        ).toJson()
+                    ).toJson()
                 )
             }
             +buttonRow {

@@ -2,8 +2,11 @@ package me.evgen.advbot.model.state.advert
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
+import chat.tamtam.botsdk.model.AttachType
 import chat.tamtam.botsdk.model.ChatId
+import chat.tamtam.botsdk.model.request.AttachmentPhotoWithUrl
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.request.PayloadUrl
 import chat.tamtam.botsdk.state.CallbackState
 import me.evgen.advbot.BotController
 import me.evgen.advbot.botText
@@ -23,7 +26,12 @@ class AdvSendingState(
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         val advert = AdvertService.findAdvert(advertId)
         if (advert != null) {
-            "${advert.text}${botText()}".sendThroughTech(ChatId(chatId), requestsManager)
+            val attachment: AttachmentPhotoWithUrl? = if (advert.mediaUrl.isNotEmpty()) {
+                AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl))
+            } else {
+                null
+            }
+            "${advert.text}${botText()}".sendThroughTech(ChatId(chatId), attachment, requestsManager)
 
             "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
                 callbackState.getUserId(),

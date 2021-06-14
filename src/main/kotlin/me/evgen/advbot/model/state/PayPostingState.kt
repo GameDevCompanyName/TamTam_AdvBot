@@ -6,16 +6,22 @@ import chat.tamtam.botsdk.model.Button
 import chat.tamtam.botsdk.model.ButtonType
 import chat.tamtam.botsdk.model.ChatId
 import chat.tamtam.botsdk.model.UserId
+import chat.tamtam.botsdk.model.AttachType
+import chat.tamtam.botsdk.model.request.AttachmentPhotoWithUrl
 import chat.tamtam.botsdk.model.request.InlineKeyboard
+import chat.tamtam.botsdk.model.request.PayloadUrl
 import chat.tamtam.botsdk.state.CallbackState
 import kotlinx.coroutines.runBlocking
+import me.evgen.advbot.BotController
 import me.evgen.advbot.botText
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.entity.Campaign
 import me.evgen.advbot.model.payment.PaymentMapping
 import me.evgen.advbot.model.payment.PaymentStatusEvent
 import me.evgen.advbot.model.state.advert.AdvChoosePlatform
+import me.evgen.advbot.model.state.advert.AdvListState
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.PlatformsForPostingArgs
@@ -29,6 +35,9 @@ class PayPostingState(
     private val cost: Int
 ) : BaseState(timestamp), CustomCallbackState, PropertyChangeListener {
 
+    //TODO это временная мера
+    var lastCallbackState: CallbackState? = null
+
     override fun propertyChange(evt: PropertyChangeEvent) {
         if (evt.propertyName == PaymentStatusEvent.PROPERTY_NAME && evt.newValue is PaymentStatusEvent) {
             runBlocking {
@@ -36,13 +45,35 @@ class PayPostingState(
 
                 val paymentStatusEvent = evt.newValue as PaymentStatusEvent
 
-                "${advert!!.text}${botText()}".sendTo(ChatId(chatId), paymentStatusEvent.requestsManager)
+                if (advert != null) {
+                    val attachment: AttachmentPhotoWithUrl? = if (advert.mediaUrl.isNotEmpty()) {
+                        AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl))
+                    } else {
+                        null
+                    }
+                    val postId = "${advert.text}${botText()}".sendThroughTech(
+                        ChatId(chatId),
+                        attachment,
+                        paymentStatusEvent.requestsManager
+                    )
 
-                //TODO нужно получать правильный айди
-//                "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
-//                    UserId(advert.owner.id),
-//                    paymentStatusEvent.requestsManager
-//                )
+                    if (postId != null) {
+                        val post = Campaign(postId, advert)
+                        AdvertService.addPost(post)
+                    }
+
+                    "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
+                        UserId(advert.owner.id),
+                        paymentStatusEvent.requestsManager
+                    )
+
+                    if (lastCallbackState != null) {
+                        val newState = AdvListState(timestamp)
+                        BotController.moveTo(newState, advert.owner.id) {
+                            newState.handle(lastCallbackState!!, paymentStatusEvent.requestsManager)
+                        }
+                    }
+                }
             }
         }
     }
@@ -71,6 +102,8 @@ class PayPostingState(
                 createKeyboard(),
                 requestsManager
             )
+
+        lastCallbackState = callbackState
     }
 
     private fun createKeyboard(): InlineKeyboard {
