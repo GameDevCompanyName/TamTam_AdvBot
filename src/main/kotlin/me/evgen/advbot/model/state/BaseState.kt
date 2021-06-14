@@ -49,13 +49,33 @@ abstract class BaseState(var timestamp: Long) {
         requestsManager.answer(callbackId, answerCallback)
     }
 
+    suspend fun String.answerWithKeyboardAndAttachments(attachments: List<AttachmentContract>, callbackId: CallbackId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
+        val attaches = mutableListOf<AttachmentContract>()
+        if (inlineKeyboard != EMPTY_INLINE_KEYBOARD) {
+            attaches.add(AttachmentKeyboard(AttachType.INLINE_KEYBOARD.value.toLowerCase(), inlineKeyboard))
+        }
+        attaches.addAll(attachments)
+        val message = SendMessage(this, attaches)
+        val answerCallback = AnswerCallback(message)
+
+        requestsManager.answer(callbackId, answerCallback)
+    }
+
     suspend fun String.answerNotification(userId: UserId, callbackId: CallbackId, requestsManager: RequestsManager) {
         val answerCallback = AnswerCallback(userId = userId.id, notification = this)
         requestsManager.answer(callbackId, answerCallback)
     }
 
-    suspend fun String.sendThroughTech(chatId: ChatId, requestsManager: RequestsManager) {
-        when (val res = requestsManager.send(ChatId(techChannelId), SendMessage(this))) {
+    suspend fun String.sendThroughTech(chatId: ChatId, attachment: AttachmentContract?, requestsManager: RequestsManager) {
+        val message: SendMessage
+        val attachmentList : List<AttachmentContract>
+        if (attachment != null) {
+            attachmentList = listOf(attachment)
+            message = SendMessage(this, attachmentList)
+        } else {
+            message = SendMessage(this)
+        }
+        when (val res = requestsManager.send(ChatId(techChannelId), message)) {
             is ResultRequest.Success -> {
                 requestsManager.send(chatId, SendMessage("", emptyList(), true, LinkOnMessage(LinkType.FORWARD, res.response.body.messageId)))
             }
