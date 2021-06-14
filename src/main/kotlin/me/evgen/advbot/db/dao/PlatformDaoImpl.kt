@@ -4,6 +4,8 @@ import me.evgen.advbot.model.entity.AdvertTag
 import me.evgen.advbot.model.entity.IPlatform
 import me.evgen.advbot.model.entity.Platform
 import me.evgen.advbot.model.entity.PlatformTag
+import me.evgen.advbot.model.entity.embedded_id.AdvertTagEmbeddedId
+import me.evgen.advbot.model.entity.embedded_id.PlatformTagEmbeddedId
 import javax.persistence.criteria.Order
 import javax.persistence.criteria.Predicate
 import javax.persistence.criteria.Root
@@ -46,11 +48,11 @@ class PlatformDaoImpl : PlatformDao<IPlatform>() {
             val advertTag: Root<AdvertTag> = queryTags.from(AdvertTag::class.java)
 
             queryTags
-                .select(advertTag.get("tagId"))
-                .where(cb.equal(advertTag.get<Long>("advertId"), advertId))
+                .select(advertTag.get<AdvertTagEmbeddedId>("id").get("tagId"))
+                .where(cb.equal(advertTag.get<AdvertTagEmbeddedId>("id").get<Long>("advertId"), advertId))
             queryPlatform
-                .select(platformTag.get("platformId"))
-                .where(platformTag.get<Long>("tagId").`in`(queryTags))
+                .select(platformTag.get<PlatformTagEmbeddedId>("id").get("platformId"))
+                .where(platformTag.get<PlatformTagEmbeddedId>("id").get<Long>("tagId").`in`(queryTags))
             query.select(platform)
             val idPredicate = platform.get<Long>("id").`in`(queryPlatform)
             val availabilityPredicate = cb.equal(platform.get<Boolean>("availability"), true)

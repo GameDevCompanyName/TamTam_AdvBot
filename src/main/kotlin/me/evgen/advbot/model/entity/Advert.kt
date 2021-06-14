@@ -12,6 +12,7 @@ import javax.persistence.JoinTable
 import javax.persistence.ManyToMany
 import javax.persistence.ManyToOne
 import javax.persistence.Table
+import javax.persistence.Column
 
 @Entity
 @Table(name = TableName.ADVERT)
@@ -22,7 +23,7 @@ class Advert() {
     var title: String = ""
     var text: String = ""
 
-    @JoinColumn(name = "media_url")
+    @Column(name = "media_url")
     lateinit var mediaUrl: String
 
     @ManyToOne(fetch = FetchType.EAGER)

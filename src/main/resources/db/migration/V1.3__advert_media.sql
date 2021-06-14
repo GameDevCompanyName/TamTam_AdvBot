@@ -1,1 +1,0 @@
-alter table advert add column media_url text;

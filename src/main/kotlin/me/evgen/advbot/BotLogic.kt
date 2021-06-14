@@ -14,6 +14,7 @@ import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.UserService
 
 import io.javalin.Javalin
+import me.evgen.advbot.model.entity.User
 import me.evgen.advbot.model.payment.PaymentMapping
 import me.evgen.advbot.model.payment.PaymentStatusEvent
 import java.beans.PropertyChangeEvent
@@ -66,8 +67,18 @@ fun main() {
             onCommand("/start") {
                 try {
                     val newState = StartState(System.currentTimeMillis())
-                    BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
-                        newState.handle(it, requests)
+                    var user = UserService.findUser(it.getUserIdLong())
+                    var result: Long? = user?.id
+                    if (result == null) {
+                        user = User(it.getUserIdLong(), newState)
+                        result = UserService.insertUser(user)
+                    }
+                    if (result != null) {
+                        BotController.moveTo(newState, it.getUserId().id, isForce = true) { oldState ->
+                            newState.handle(it, requests)
+                        }
+                    } else {
+                        "Возникла ошибка! Обратитесь к разработчикам.".sendFor(it.getUserId())
                     }
                 } catch (ex: Exception) {
                     ex.printStackTrace()
