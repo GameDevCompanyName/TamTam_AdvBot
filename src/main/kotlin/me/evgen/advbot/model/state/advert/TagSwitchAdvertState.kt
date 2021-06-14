@@ -22,11 +22,7 @@ class TagSwitchAdvertState(timestamp: Long, private val advertId: Long, private 
 
         AdvertService.tagSwitchAdvert(advert, tagId)
 
-        "Тег успешно изменен".answerNotification(
-            callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
-
-        val newState =
-            TagSelectionAdvertState(timestamp, advertId)
+        val newState = TagSelectionAdvertState(timestamp, advertId)
         BotController.moveTo(newState, callbackState.getUserId().id) {
             newState.handle(callbackState, requestsManager)
         }

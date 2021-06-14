@@ -11,12 +11,10 @@ import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.model.request.PayloadUrl
 import chat.tamtam.botsdk.state.CallbackState
 import chat.tamtam.botsdk.state.MessageState
-import me.evgen.advbot.Payloads
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.ErrorType
-import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.entity.Tag
 import me.evgen.advbot.model.navigation.Payload
 import me.evgen.advbot.model.state.BaseState
@@ -33,13 +31,11 @@ class AdvConstructorState(
     override suspend fun handle(callbackState: CallbackState, requestsManager: RequestsManager) {
         var message = ErrorType.EDIT_ADVERT.errorMessage
         val attaches = mutableListOf<AttachmentContract>()
-        if (!isCreatingAdvert) {
-            val advert = AdvertService.findAdvert(advertId)
-            if (advert != null) {
-                message = createMessage(advert.title, advert.text, advert.tags)
-                if (advert.mediaUrl.isNotEmpty()) {
-                    attaches.add(AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl)))
-                }
+        val advert = AdvertService.findAdvert(advertId)
+        if (advert != null) {
+            message = createMessage(advert.title, advert.text, advert.tags)
+            if (advert.mediaUrl.isNotEmpty()) {
+                attaches.add(AttachmentPhotoWithUrl(AttachType.IMAGE.value, PayloadUrl(advert.mediaUrl)))
             }
         }
 
@@ -90,7 +86,8 @@ class AdvConstructorState(
         message.sendToUserWithKeyboardAndAttachments(messageState.getUserId(),
             keyboard,
             attaches,
-            requestsManager)
+            requestsManager
+        )
     }
 
     private fun createKeyboard(): InlineKeyboard {
