@@ -22,6 +22,9 @@ class Advert() {
     var title: String = ""
     var text: String = ""
 
+    @JoinColumn(name = "media_url")
+    lateinit var mediaUrl: String
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "${TableName.USER}_id")
     lateinit var owner: User
@@ -37,6 +40,7 @@ class Advert() {
     constructor(title: String, owner: User) : this () {
         this.title = title
         this.text = ""
+        this.mediaUrl = ""
         this.owner = owner
     }
 }
