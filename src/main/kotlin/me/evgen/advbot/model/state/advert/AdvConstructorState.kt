@@ -53,7 +53,12 @@ class AdvConstructorState(
             createKeyboard()
         }
 
-        message.answerWithKeyboardAndAttachments(attaches, callbackState.callback.callbackId, keyboard, requestsManager)
+        message.sendToUserWithKeyboardAndAttachments(
+            callbackState.getUserId(),
+            keyboard,
+            attaches,
+            requestsManager
+        )
     }
 
     override suspend fun handle(messageState: MessageState, requestsManager: RequestsManager) {

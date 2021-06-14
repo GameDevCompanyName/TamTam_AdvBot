@@ -42,20 +42,22 @@ abstract class BaseState(var timestamp: Long) {
         requestsManager.send(userId, SendMessage(this, attaches))
     }
 
-    suspend fun String.answerWithKeyboard(callbackId: CallbackId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
-        val message = SendMessage(this, listOf(AttachmentKeyboard(AttachType.INLINE_KEYBOARD.value.toLowerCase(), inlineKeyboard)))
-        val answerCallback = AnswerCallback(message)
+    suspend fun String.sendToUserWithKeyboardAndAttachments(
+        userId: UserId,
+        inlineKeyboard: InlineKeyboard,
+        attachments: List<AttachmentContract>,
+        requestsManager: RequestsManager) {
 
-        requestsManager.answer(callbackId, answerCallback)
-    }
-
-    suspend fun String.answerWithKeyboardAndAttachments(attachments: List<AttachmentContract>, callbackId: CallbackId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
         val attaches = mutableListOf<AttachmentContract>()
         if (inlineKeyboard != EMPTY_INLINE_KEYBOARD) {
             attaches.add(AttachmentKeyboard(AttachType.INLINE_KEYBOARD.value.toLowerCase(), inlineKeyboard))
         }
         attaches.addAll(attachments)
-        val message = SendMessage(this, attaches)
+        requestsManager.send(userId, SendMessage(this, attaches))
+    }
+
+    suspend fun String.answerWithKeyboard(callbackId: CallbackId, inlineKeyboard: InlineKeyboard, requestsManager: RequestsManager) {
+        val message = SendMessage(this, listOf(AttachmentKeyboard(AttachType.INLINE_KEYBOARD.value.toLowerCase(), inlineKeyboard)))
         val answerCallback = AnswerCallback(message)
 
         requestsManager.answer(callbackId, answerCallback)
