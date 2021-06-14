@@ -22,6 +22,7 @@ import me.evgen.advbot.model.payment.PaymentMapping
 import me.evgen.advbot.model.payment.PaymentStatusEvent
 import me.evgen.advbot.model.state.advert.AdvChoosePlatform
 import me.evgen.advbot.model.state.advert.AdvListState
+import me.evgen.advbot.model.state.advert.AdvSendingState
 import me.evgen.advbot.service.AdvertService
 import me.evgen.advbot.service.PlatformService
 import me.evgen.advbot.service.PlatformsForPostingArgs
@@ -113,9 +114,9 @@ class PayPostingState(
                     AdvChoosePlatform(timestamp, PlatformsForPostingArgs(advertId)).toPayload()
                 )
                 +Button(
-                    ButtonType.LINK,
+                    ButtonType.CALLBACK,
                     "Оплатить",
-                    url = "http://localhost:8080/${PaymentMapping.PAY_SUCCESS}"
+                    payload = AdvSendingState(timestamp, advertId, chatId).toPayload().toJson()
                 )
             }
         }

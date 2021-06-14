@@ -22,25 +22,25 @@ import java.beans.PropertyChangeEvent
 fun main() {
     longPolling(LongPollingStartingParams("dg370Ox_HsEK3qPYlhpc-2NZqU4yAGmoa9U_B5ImxHs")) {
 
-        Javalin.create().start(8080).apply {
-            get(PaymentMapping.PAY_SUCCESS) {
-                BotController.paymentSupport.firePropertyChange(
-                    PropertyChangeEvent(
-                        "BotLogic",
-                        PaymentStatusEvent.PROPERTY_NAME,
-                        null,
-                        PaymentStatusEvent(
-                            true,
-                            1, //TODO нужно передавать правильный айди юзера
-                            requests
-                        )
-                    )
-                )
-            }
-            get(PaymentMapping.PAY_ERROR) {
-                //TODO
-            }
-        }
+//        Javalin.create().start(8080).apply {
+//            get(PaymentMapping.PAY_SUCCESS) {
+//                BotController.paymentSupport.firePropertyChange(
+//                    PropertyChangeEvent(
+//                        "BotLogic",
+//                        PaymentStatusEvent.PROPERTY_NAME,
+//                        null,
+//                        PaymentStatusEvent(
+//                            true,
+//                            1, //TODO нужно передавать правильный айди юзера
+//                            requests
+//                        )
+//                    )
+//                )
+//            }
+//            get(PaymentMapping.PAY_ERROR) {
+//                //TODO
+//            }
+//        }
 
         onStartBot {
             WelcomeState(System.currentTimeMillis()).handle(it, requests)
@@ -130,16 +130,6 @@ fun main() {
                                 is ResultRequest.Success -> result.response
                                 is ResultRequest.Failure -> result.exception
                             }
-                            return@answerOnMessage
-                        }
-                        ChatType.CHANNEL -> {
-                            val attaches = messageState.message.body.attachments
-                            if (attaches.isNotEmpty()) {
-                                when(val attach = attaches[0]) {
-                                    is AttachmentPhoto -> attach.payload.url sendFor messageState.message.recipient.chatId
-                                }
-                            }
-
                             return@answerOnMessage
                         }
                         else -> {

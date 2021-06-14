@@ -13,6 +13,8 @@ import me.evgen.advbot.botText
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.ErrorType
+import me.evgen.advbot.model.entity.Campaign
 import me.evgen.advbot.model.state.BaseState
 import me.evgen.advbot.model.state.CustomCallbackState
 import me.evgen.advbot.service.AdvertService
@@ -31,19 +33,33 @@ class AdvSendingState(
             } else {
                 null
             }
-            "${advert.text}${botText()}".sendThroughTech(ChatId(chatId), attachment, requestsManager)
-
-            "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
-                callbackState.getUserId(),
+            val postId = "${advert.text}${botText()}".sendThroughTech(
+                ChatId(chatId),
+                attachment,
                 requestsManager
             )
+            if (postId != null) {
+                val post = Campaign(postId, advert)
+                AdvertService.addPost(post)
 
-            val newState = AdvListState(timestamp)
-            BotController.moveTo(newState, callbackState.getUserId().id) {
-                newState.handle(callbackState, requestsManager)
+                "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
+                    callbackState.getUserId(),
+                    requestsManager
+                )
+
+                val newState = AdvListState(timestamp)
+                BotController.moveTo(newState, callbackState.getUserId().id) {
+                    newState.handle(callbackState, requestsManager)
+                }
+            } else {
+                ErrorType.POST_ADVERT.errorMessage.sendToUserWithKeyboard(
+                    callbackState.getUserId(),
+                    createErrorKeyboard(),
+                    requestsManager
+                )
             }
         } else {
-            "Не удалось опубликовать рекламу.".sendToUserWithKeyboard(
+            ErrorType.POST_ADVERT.errorMessage.sendToUserWithKeyboard(
                 callbackState.getUserId(),
                 createErrorKeyboard(),
                 requestsManager
