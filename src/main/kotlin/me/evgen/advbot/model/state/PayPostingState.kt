@@ -17,6 +17,7 @@ import me.evgen.advbot.botText
 import me.evgen.advbot.emoji.Emoji
 import me.evgen.advbot.getUserId
 import me.evgen.advbot.model.CallbackButton
+import me.evgen.advbot.model.entity.Campaign
 import me.evgen.advbot.model.payment.PaymentMapping
 import me.evgen.advbot.model.payment.PaymentStatusEvent
 import me.evgen.advbot.model.state.advert.AdvChoosePlatform
@@ -50,11 +51,16 @@ class PayPostingState(
                     } else {
                         null
                     }
-                    "${advert.text}${botText()}".sendThroughTech(
+                    val postId = "${advert.text}${botText()}".sendThroughTech(
                         ChatId(chatId),
                         attachment,
                         paymentStatusEvent.requestsManager
                     )
+
+                    if (postId != null) {
+                        val post = Campaign(postId, advert)
+                        AdvertService.addPost(post)
+                    }
 
                     "${Emoji.FIRECRACKER} Рекламное объявление \"${advert.title}\" успешно отправлено.".sendTo(
                         UserId(advert.owner.id),

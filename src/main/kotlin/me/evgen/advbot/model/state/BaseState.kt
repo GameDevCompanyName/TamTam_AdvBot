@@ -68,7 +68,8 @@ abstract class BaseState(var timestamp: Long) {
         requestsManager.answer(callbackId, answerCallback)
     }
 
-    suspend fun String.sendThroughTech(chatId: ChatId, attachment: AttachmentContract?, requestsManager: RequestsManager) {
+    //return messageId
+    suspend fun String.sendThroughTech(chatId: ChatId, attachment: AttachmentContract?, requestsManager: RequestsManager): String? {
         val message: SendMessage
         val attachmentList : List<AttachmentContract>
         if (attachment != null) {
@@ -80,8 +81,11 @@ abstract class BaseState(var timestamp: Long) {
         when (val res = requestsManager.send(ChatId(techChannelId), message)) {
             is ResultRequest.Success -> {
                 requestsManager.send(chatId, SendMessage("", emptyList(), true, LinkOnMessage(LinkType.FORWARD, res.response.body.messageId)))
+                return res.response.body.messageId.id
             }
         }
+
+        return null
     }
 }
 
