@@ -13,10 +13,10 @@ import chat.tamtam.botsdk.state.CommandState
 import chat.tamtam.botsdk.state.MessageState
 import chat.tamtam.botsdk.state.StartedBotState
 import com.google.gson.Gson
+import me.evgen.advbot.TECH_CHANNEL_ID
 import me.evgen.advbot.model.navigation.Payload
 
 abstract class BaseState(var timestamp: Long) {
-    private val techChannelId = -78551009460407
 
     fun toPayload(): Payload {
         return Payload(
@@ -78,7 +78,7 @@ abstract class BaseState(var timestamp: Long) {
         } else {
             message = SendMessage(this)
         }
-        when (val res = requestsManager.send(ChatId(techChannelId), message)) {
+        when (val res = requestsManager.send(ChatId(TECH_CHANNEL_ID), message)) {
             is ResultRequest.Success -> {
                 requestsManager.send(chatId, SendMessage("", emptyList(), true, LinkOnMessage(LinkType.FORWARD, res.response.body.messageId)))
                 return res.response.body.messageId.id

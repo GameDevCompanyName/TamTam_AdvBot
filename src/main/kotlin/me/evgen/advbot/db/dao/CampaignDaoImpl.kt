@@ -8,8 +8,8 @@ class CampaignDaoImpl : CampaignDao<ICampaign>() {
         return find<Campaign>(postId)
     }
 
-    override fun findAllAdPosts(adId: Long): Set<ICampaign> {
-        return findAllByColumnName<Campaign>("advert", adId).toSet()
+    override fun findAllAdPosts(adId: Long): List<ICampaign> {
+        return findAllByColumnName<Campaign>("advert", adId).toList()
     }
 
     override fun deleteCampaign(postId: String) {

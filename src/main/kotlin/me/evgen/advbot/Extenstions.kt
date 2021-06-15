@@ -18,6 +18,8 @@ import chat.tamtam.botsdk.state.UpdateState
 import me.evgen.advbot.model.CallbackButton
 import me.evgen.advbot.model.navigation.Payload
 
+const val TECH_CHANNEL_ID = -78551009460407
+
 fun UpdateState.getUserId(): UserId {
     return when (this) {
         is CommandState -> this.command.message.sender.userId

@@ -5,6 +5,7 @@ import me.evgen.advbot.db.dao.CampaignDaoImpl
 import me.evgen.advbot.db.dao.TagsDaoImpl
 import me.evgen.advbot.model.entity.Advert
 import me.evgen.advbot.model.entity.Campaign
+import me.evgen.advbot.model.entity.ICampaign
 
 object AdvertService {
 
@@ -51,5 +52,9 @@ object AdvertService {
 
     fun addPost(campaign: Campaign) {
         campaignDao.update(campaign)
+    }
+
+    fun getAllCampaignsByAd(advertId: Long): List<ICampaign> {
+        return campaignDao.findAllAdPosts(advertId)
     }
 }

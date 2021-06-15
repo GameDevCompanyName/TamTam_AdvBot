@@ -2,11 +2,7 @@ package me.evgen.advbot.model.state
 
 import chat.tamtam.botsdk.client.RequestsManager
 import chat.tamtam.botsdk.keyboard.keyboard
-import chat.tamtam.botsdk.model.Button
-import chat.tamtam.botsdk.model.ButtonType
-import chat.tamtam.botsdk.model.ChatId
-import chat.tamtam.botsdk.model.UserId
-import chat.tamtam.botsdk.model.AttachType
+import chat.tamtam.botsdk.model.*
 import chat.tamtam.botsdk.model.request.AttachmentPhotoWithUrl
 import chat.tamtam.botsdk.model.request.InlineKeyboard
 import chat.tamtam.botsdk.model.request.PayloadUrl
@@ -116,6 +112,7 @@ class PayPostingState(
                 +Button(
                     ButtonType.CALLBACK,
                     "Оплатить",
+                    intent = ButtonIntent.POSITIVE,
                     payload = AdvSendingState(timestamp, advertId, chatId).toPayload().toJson()
                 )
             }

@@ -24,13 +24,31 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
     ) {
         val advert = AdvertService.findAdvert(advertId)
         if (advert == null) {
-            "Ошибка! Нет такой рекламы.".answerNotification(callbackState.getUserId(), callbackState.callback.callbackId, requestsManager)
+            "Ошибка! Нет такой рекламы.".answerNotification(
+                callbackState.getUserId(),
+                callbackState.callback.callbackId,
+                requestsManager
+            )
             return
         }
 
+        val campaigns = AdvertService.getAllCampaignsByAd(advertId)
+        val postCount = campaigns.size
+        var viewCount = 0
+        for (campaign in campaigns) {
+            val message = campaign.getPostFromServer(requestsManager)
+            if (message != null) {
+                viewCount += message.statistics.views - 1 //TODO это костыль на счетчик, потому что бот считает свой просмотр (походу)
+            }
+        }
+
+
         """Работа с рекламой:
-            | ${advert.title}""".trimMargin().answerWithKeyboard(
-            callbackState.callback.callbackId,
+            | ${advert.title}
+            | 
+            | Данная реклама была запущена $postCount раз.
+            | Общее количество просмотров рекламы: $viewCount""".trimMargin().sendToUserWithKeyboard(
+            callbackState.callback.user.userId,
             createKeyboard(),
             requestsManager
         )
@@ -50,13 +68,6 @@ class AdvState(timestamp: Long, private val advertId: Long) : BaseState(timestam
                             isCreatingAdvert = false
                         ).toJson()
                     ).toJson()
-                )
-            }
-            +buttonRow {
-                +Button(
-                    ButtonType.CALLBACK,
-                    "Просмотр метрик 📊",
-                    payload = Payloads.WIP
                 )
             }
             +buttonRow {
