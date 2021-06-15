@@ -20,7 +20,7 @@ import me.evgen.advbot.model.payment.PaymentStatusEvent
 import java.beans.PropertyChangeEvent
 
 fun main() {
-    longPolling(LongPollingStartingParams("dg370Ox_HsEK3qPYlhpc-2NZqU4yAGmoa9U_B5ImxHs")) {
+    longPolling(LongPollingStartingParams("Z0C8HWGP311wCZEDRtDJtFhxHVI0C0IXnd-pcEDmDMQ")) {
 
 //        Javalin.create().start(8080).apply {
 //            get(PaymentMapping.PAY_SUCCESS) {
